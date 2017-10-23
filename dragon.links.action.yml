@@ -1,0 +1,5 @@
+entity.template.add_form:
+  route_name: 'entity.template.add_form'
+  title: 'Create Template'
+  appears_on:
+    - entity.template.collection

@@ -1,0 +1,158 @@
+
+<div id="ab-variant-form" class="form">
+
+  <div class="header">
+    <ul class="nav nav-tabs">
+      <li class="active"><a data-toggle="tab" href="#variant-table">Manage Variants</a></li>
+      <li><a data-toggle="tab" href="#summary-table">Show Results</a></li>
+      <li><a data-toggle="tab" href="#goals-table">Manage Goals</a></li>
+    </ul>
+  </div>
+
+  <div class="form-group">
+    <lable class="form-label">Campaign</label>
+    <label class="switch">
+      <input type="checkbox" id="ab-test-campaign">
+      <span class="slider">Active</span>
+    </label>
+  </div>
+  <div class="tab-content">
+    <div id="variant-table" class="tab-pane fade in active">
+
+      <div class="form-divider"></div>
+
+      <div id="form-variants" class="form-group">
+        <label class="form-label">Variants:</label>
+        <select id="current-variant" class="chosen">
+          <option value="original">Original</option>
+        </select>
+      </div>
+
+      <div id="form-variant-title" class="form-group">
+        <label class="form-label">Name:</label>
+        <input id="variant-title" type="textfield">
+      </div>
+
+      <div id="form-variant-status" class="form-group">
+        <label class="form-label">Status</label>
+        <label class="switch">
+          <input type="checkbox" id="variant-status">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div id="form-variant-actions" class="form-group">
+        <a class="btn btn-success">Save</a> <a class="btn btn-danger">Reset</a>
+      </div>
+    </div>
+
+    <div id="summary-table" class="tab-pane">
+      <table>
+        <thead>
+          <th>Variation</th>
+          <th>Conversion Rate</th>
+          <th>Improvement</th>
+          <th>Confidence</th>
+          <th>Conv/Visitors</th>
+          <th>Status</th>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Original</td>
+            <td>0.00%</td>
+            <td>0.00%</td>
+            <td>0.00%</td>
+            <td>0/0</td>
+            <td><span class="badge btn-success">RUNNING</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div id="goals-table"  class="tab-pane">
+      <h3>Goals  <button id="add-goal" class="badge btn-success" data-toggle="collapse" data-target="#goal-form-wrapper">Add Goal</button></h3>
+
+      <div class="goal-table">
+      <table>
+        <thead>
+          <th>Name</th>
+          <th>Usage</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </thead>
+        <tbody>
+          <tr>
+            <td>CTA Clicked</td>
+            <td> 3 Experiments </td>
+            <td> <span class="btn btn-success">Tracking</span></td>
+            <td>
+              <a class="btn-edit-goal"><i class="fa fa-pencil"> </i></a>
+              <a class="btn-delete-goal"><i class="fa fa-trash"> </i></a>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+      <div class="goal-form form collapse" id="goal-form-wrapper">
+        <div class="row">
+          <ul class="nav nav-tabs">
+            <li class="active">
+              <a data-toggle="tab" href="#goal-templates">Goal Templates</a>
+            </li>
+            <li>
+              <a data-toggle="tab" href="#ga-goals">Google Analytics Goal</a>
+            </li>
+          </ul>
+        </div>
+
+      <div class="tab-content">
+        <div id="goal-templates" class="tab-pane fade in active">
+
+          <div class="well col-sm-4" data-toggle="collapse" data-target="specific-page-goal">
+            <h3>Visit a specific page</h3>
+            <p>This allows you to create a new goal that is triggered when the visitor goals to a certain page after this one.</p>
+          </div>
+
+          <div class="well col-sm-4" data-toggle="collapse" data-target="revenue-goal">
+            <h3>Revenue goal</h3>
+            <p>This allows you to create a new goal that is triggered on a page where visitor generates revenue.</p>
+          </div>
+
+          <div class="well col-sm-4" data-toggle="collapse" data-target="click-link-goal">
+            <h3>Click on a link</h3>
+            <p>This allows you to create a new goal that triggers when a visitor clicks on a link, whether site-wide or on pages you define.</p>
+          </div>
+
+          <div class="well col-sm-4" data-toggle="collapse" data-target="submit-form-goal">
+            <h3>Submit a form</h3>
+            <p>This allows you to create a new goal that triggers when a visitor submits a form, whether site-wide or on pages you define.</p>
+          </div>
+
+          <div class="well col-sm-4" data-toggle="collapse" data-target="click-something-goal">
+            <h3>Clicks something on a page</h3>
+            <p>This allows you to create a new goal that triggers when a visitor clicks on something, whether site-wide or on page(s) you define.</p>
+          </div>
+
+          <div class="well col-sm-4" data-toggle="collapse" data-target="javascript-goal">
+            <h3>Javascript triggered goal</h3>
+            <p>This allows you to create a new goal that can only be triggered using a Javascript code.</p>
+          </div>
+
+        </div>
+        <div id="ga-goals" class="tab-pane fade">
+          <h3>Import your Goals from Google Analytics</h3>
+          <p>Importing goals from your Google Analytics account into Convert experiments let's you quickly setup your goals , through just a few mouse clicks.
+             To be able to do that, you need to give Convert Experiments the permission to access your analytics account by clicking on the "Connect Now" link below.
+          </p>
+          <div class="row">
+            <div class="col-md-12">
+              <img src="/modules/dragon/assets/img/Google_Analytics_logo.png" class="pull-left"/>
+              <button class="pull-right btn btn-info">Connect Now</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  </div>
+</div>

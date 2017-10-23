@@ -1,0 +1,29 @@
+dragon.admin:
+  title: 'Overview'
+  route_name: dragon.admin
+  base_route: dragon.admin
+
+dragon.colors.admin:
+  title: 'Colors'
+  route_name: dragon.colors.admin
+  base_route: dragon.admin
+
+dragon.fonts.admin:
+  title: 'Fonts'
+  route_name: dragon.fonts.admin
+  base_route: dragon.admin
+
+dragon.breakpoint.admin:
+  title: 'Breakpoints'
+  route_name: dragon.breakpoint.admin
+  base_route: dragon.admin
+
+entity.template.collection:
+  title: 'Templates'
+  route_name: entity.template.collection
+  base_route: dragon.admin
+
+dragon.node.layout:
+  title: 'Layout'
+  route_name: dragon.node.layout
+  base_route: entity.node.canonical

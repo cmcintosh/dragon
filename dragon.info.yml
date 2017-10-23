@@ -1,0 +1,7 @@
+name: Dragon
+type: module
+description: 'The base system for extending drupal with a wysiwyg interface.'
+package: Dragon
+core: 8.x
+libraries:
+  - wembassy/icons

@@ -1,0 +1,6 @@
+dragon.admin:
+  title: Dragon
+  route_name: dragon.admin
+  description: 'Dragon site building tool.'
+  parent: system.admin
+  weight: 10
