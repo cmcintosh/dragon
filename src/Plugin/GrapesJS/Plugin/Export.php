@@ -14,14 +14,14 @@ use Drupal\dragon\Plugin\GrapesJS\Plugin\GrapesJSPluginInterface;
 class Export extends GrapesJSPluginBase implements GrapesJSPluginInterface {
 
     /**
-    * Return the DOM Element for this component.
+    * {@inheritdoc}
     */
     public function getLibrary() {
       return $this->pluginDefinition['library'];
     }
 
     /**
-    * Return preconfigured options for the plugin.
+    * {@inheritdoc}
     */
     public function getOptions() {
       return [];

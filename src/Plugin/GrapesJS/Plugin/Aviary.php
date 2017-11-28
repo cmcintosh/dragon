@@ -24,7 +24,11 @@ class Aviary extends GrapesJSPluginBase implements GrapesJSPluginInterface {
     * Return preconfigured options for the plugin.
     */
     public function getOptions() {
-      return [];
+      return [
+        'gjs-aviary' => [
+          'key' => ''
+        ]
+      ];
     }
 
 }

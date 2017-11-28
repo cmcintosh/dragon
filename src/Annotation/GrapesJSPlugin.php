@@ -31,4 +31,10 @@ use Drupal\Component\Annotation\Plugin;
     */
    public $library;
 
+   /**
+   * The weight is used to determine what order in the theme generation process
+   * the plugin will be called.
+   */
+   public $weight;
+
  }

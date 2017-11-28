@@ -8,20 +8,21 @@ use Drupal\dragon\Plugin\GrapesJS\Plugin\GrapesJSPluginInterface;
 /**
 * @GrapesJSPlugin(
 *   id = "drupal-blocks",
-*   library = "dragon/drupalBlocks"
+*   library = "dragon/drupalBlocks",
+*   weight = 98
 * )
 */
 class DrupalBlocks extends GrapesJSPluginBase implements GrapesJSPluginInterface {
 
     /**
-    * Return the DOM Element for this component.
+    * {@inheritdoc}
     */
     public function getLibrary() {
       return $this->pluginDefinition['library'];
     }
 
     /**
-    * Return preconfigured options for the plugin.
+    * {@inheritdoc}
     */
     public function getOptions() {
       return [ ];
@@ -30,7 +31,7 @@ class DrupalBlocks extends GrapesJSPluginBase implements GrapesJSPluginInterface
     // @TODO: find a way to return rendered blocks via an ajax call.
 
     /**
-    * Return all of the defined drupal fields.
+    * {@inheritdoc}
     */
     public function drupalSettings() {
       $blocks = [];
@@ -39,8 +40,6 @@ class DrupalBlocks extends GrapesJSPluginBase implements GrapesJSPluginInterface
       $plugin_definitions = $type->getDefinitions();
 
       foreach($plugin_definitions as $id => $definition) {
-
-
         $plugin = $type->createInstance($id, []);
         $build = $plugin->build();
         $suggestions = $this->getSuggestions($id);
@@ -65,6 +64,11 @@ class DrupalBlocks extends GrapesJSPluginBase implements GrapesJSPluginInterface
         'drupalBlocks' => $blocks
       ];
     }
+
+    /**
+    * {@inheritdoc}
+    */
+    public function generate(&$templates) {}
 
     /**
     * Builds the template suggestions for any given block.
@@ -99,7 +103,7 @@ class DrupalBlocks extends GrapesJSPluginBase implements GrapesJSPluginInterface
           $template = $suggestion;
         }
       }
-      
+
       return $template;
     }
 

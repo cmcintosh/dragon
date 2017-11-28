@@ -1,10 +1,4 @@
 services:
-  plugin.manager.grapejs_component:
-    class: Drupal\dragon\GrapesJSComponentManager
-    parent: default_plugin_manager
-  plugin.manager.grapejs_block:
-    class: Drupal\dragon\GrapesJSBlockManager
-    parent: default_plugin_manager
   plugin.manager.grapejs_plugin:
     class: Drupal\dragon\GrapesJSPluginManager
     parent: default_plugin_manager

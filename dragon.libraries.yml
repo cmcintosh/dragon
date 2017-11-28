@@ -1,4 +1,8 @@
 # Third party Assets.
+google-fonts:
+  version: 1.x
+  js:
+    https://ajax.googleapis.com/ajax/libs/webfont/1.6.16/webfont.js: {}
 spectrum:
   version: 1.x
   css:
@@ -183,3 +187,4 @@ builder:
     - core/drupal.dialog
     - core/drupal.dialog.ajax
     - dragon/grapesjs
+    - dragon/google-fonts

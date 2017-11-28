@@ -30,6 +30,8 @@
           </div>
         `;
 
+        // This allows us to display a modal and allows users to set the template used for a given block.
+        // When generating a theme this will create a template for this customized view.
         cmdm.add('drupal-block-edit', {
           run: function(editor, sender) {
             var target = editor.getSelected().attributes.attributes['data-block'];
@@ -99,18 +101,13 @@
                     command: 'drupal-block-edit'
                   }
                 ],
-              }),
-              init: function() {
-                this.config.attributes['data-gjs-editable'] = false;
-              }
+              })
             },
             // Static functions.
             {
               isComponent: function(el) {
                 var attr = $(el).attr('data-block');
                 if (typeof attr !== typeof undefined && attr !== false && ($(el).is('div') || $(el).is('nav')) ){
-
-                  preventDirectBlockEditing(el);
                   return {
                      'type' : 'block'
                    }
@@ -118,21 +115,6 @@
               },
             }
         );
-
-        var preventDirectBlockEditing = function(el) {
-
-          $(el).attr('data-gjs-editable', "false");
-          $(el).attr('data-gjs-removable', "false");
-          $(el).attr('data-gjs-selectable', "false");
-
-          $(el).each(function(){
-
-            $(this).attr('data-gjs-editable', "false");
-            $(this).attr('data-gjs-removable', "false");
-            $(this).attr('data-gjs-selectable', "false");
-            // preventDirectBlockEditing(el);
-          });
-        }
 
         // Create the view for the block element.
         var blockView = defaultView.extend({
@@ -168,21 +150,21 @@
             if (i !== 'broken') {
               var block = settings.dragon.drupalBlocks[i];
               blockManager.add(i, {
-                  label: block.id,
+                  label: block.label,
                   attributes: { 'class' : 'fa fa-cubes' },
                   content: '<div data-block="' +
                       i + '"><span data-block-content="1">' +
-                      block.value + '</span></div>',
+                      block.content + '</span></div>',
                   category: 'Blocks'
               });
             }
         }
 
+        // This function runs when loading the data from Drupal so that we replace the twig code with content for the block
         settings.dragon.builder.preLoad.drupalBlocks = function(data) {
           var htmlData = $(data['gjs-html']);
           htmlData.find("[data-block]").each(function(){
             var id = $(this).attr('data-block');
-            console.log(settings.dragon.drupalBlocks[id]);
             $(this).html(settings.dragon.drupalBlocks[id].content);
           });
           var container = $('<div></div>').append(htmlData);
@@ -208,7 +190,7 @@
             content  : $(this).html(),
             template : template
           };
-          $(this).html("{{ drupal_block(" + id + ") }}");
+          $(this).html("{{ drupal_block('" + id + "') }}");
         });
 
         var container = $('<div></div>').append(htmlData);

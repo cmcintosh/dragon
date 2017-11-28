@@ -37,6 +37,7 @@ function dragon_preprocess_page(&$vars) {
     // Get plugins
     $type = \Drupal::service('plugin.manager.grapejs_plugin');
     $plugin_definitions = $type->getDefinitions();
+    $config = \Drupal::config('dragon.settings');
 
     $pluginData = [
       'plugins' => [],
@@ -71,6 +72,7 @@ function dragon_preprocess_page(&$vars) {
         'assets' => [],
         'preLoad' => [],
         'preStore' => [],
+        'google_font_api' => $config->get('google_font_api')
       ],
       'page' => [
         'rebuild_theme' => false,

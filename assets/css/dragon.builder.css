@@ -224,10 +224,6 @@ div#gjs-pn-templates-a label {
 div#gjs-pn-templates-a select {
   color:#000;
 }
-div#gjs-pn-options .fa.fa-code,
-div#gjs-pn-options .fa.fa-download {
-  display: none;
-}
 
 button#commit-twig {
     position: absolute;
@@ -342,8 +338,20 @@ span.gjs-pn-btn.fa.gjs-pn-active {
     width: 100%;
 }
 
+div#gjs-pn-templates-a label {
+  display: inline;
+}
+
+body.gjs-editor-cont {
+  overflow: hidden;
+}
+
 div#gjs-pn-search-a {
     position: absolute;
     right: 0px;
     top: 10px;
+}
+
+#gjs-pn-templates-a .gjs-pn-buttons label {
+  display:inline;
 }

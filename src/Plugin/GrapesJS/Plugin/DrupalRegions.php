@@ -14,21 +14,21 @@ use Drupal\dragon\Plugin\GrapesJS\Plugin\GrapesJSPluginInterface;
 class DrupalRegions extends GrapesJSPluginBase implements GrapesJSPluginInterface {
 
     /**
-    * Return the DOM Element for this component.
+    * {@inheritdoc}
     */
     public function getLibrary() {
       return $this->pluginDefinition['library'];
     }
 
     /**
-    * Return preconfigured options for the plugin.
+    * {@inheritdoc}
     */
     public function getOptions() {
       return [ ];
     }
 
     /**
-    * Return all of the defined drupal fields.
+    * {@inheritdoc}
     */
     public function drupalSettings() {
 
@@ -41,6 +41,13 @@ class DrupalRegions extends GrapesJSPluginBase implements GrapesJSPluginInterfac
       return [
         'regions' => $theme_info['regions']
       ];
+    }
+
+    /**
+    * {@inheritdoc}
+    */
+    public function generate(&$html) {
+      
     }
 
 }

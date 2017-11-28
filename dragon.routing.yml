@@ -6,72 +6,11 @@ dragon.admin:
   requirements:
     _permission: 'access dragon'
 
-# Font related links.
-dragon.fonts.admin:
-  path: '/admin/dragon/fonts'
-  defaults:
-    _title: 'Fonts'
-    _form: '\Drupal\dragon\Form\FontAdminManageForm'
-  requirements:
-    _permission: 'administer dragon_fonts'
-
-# Color related links
-dragon.colors.admin:
-  path: '/admin/dragon/colors'
-  defaults:
-    _title: 'Colors'
-    _form: '\Drupal\dragon\Form\ColorAdminManageForm'
-  requirements:
-    _permission: 'administer dragon_colors'
-
-# Breakpoint related links
-dragon.breakpoint.admin:
-  path: '/admin/dragon/breakpoints'
-  defaults:
-    _title: 'Breakpoints'
-    _form: '\Drupal\dragon\Form\BreakpointAdminManageForm'
-  requirements:
-    _permission: 'administer dragon_breakpoints'
-
-# Template related links
-entity.template.collection:
-  path: '/admin/dragon/templates'
-  defaults:
-    _title: 'Templates'
-    _entity_list: 'template'
-  requirements:
-    _permission: 'administer dragon_templates'
-
-entity.template.add_form:
-  path: '/admin/dragon/templates/add'
-  defaults:
-    _entity_form: 'template.add'
-    _title: 'Create Template'
-  requirements:
-    _permission: 'administer dragon_templates'
-
-entity.template.edit_form:
-  path: '/admin/dragon/templates/{template}/edit'
-  defaults:
-    _entity_form: 'template.edit'
-    _title: 'Edit Template'
-  requirements:
-    _permission: 'administer dragon_templates'
-
-# provides the editor display for entities.
-dragon.node.layout:
-  path: '/node/{node}/layout'
-  defaults:
-    _title_callback: '\Drupal\dragon\Controller\SiteBuilder::layoutNodeTitle'
-    _controller: '\Drupal\dragon\Controller\SiteBuilder::layoutNodeBuilder'
-  requirements:
-    _permission: 'access dragon'
-
 # Saves data as a config entity until needed.
 dragon.site_builder.save:
   path: '/js/grapesjs/save'
   defaults:
-    _controller: '\Drupal\dragon\Controller\SiteBuilder::saveGrapesJS'
+    _controller: '\Drupal\dragon\Controller\SiteBuilder::save'
   requirements:
     _permission: 'access dragon'
   methods: [ POST ]
@@ -80,12 +19,12 @@ dragon.site_builder.save:
 dragon.site_builder.load:
   path: '/js/grapesjs/load'
   defaults:
-    _controller: '\Drupal\dragon\Controller\SiteBuilder::loadGrapesJS'
+    _controller: '\Drupal\dragon\Controller\SiteBuilder::load'
   requirements:
     _permission: 'access dragon'
   methods: [ POST ]
 
-# Saves data as a config entity until needed.
+# Deletes a template from the system.
 dragon.site_builder.delete:
   path: '/js/grapesjs/delete'
   defaults:
@@ -94,18 +33,10 @@ dragon.site_builder.delete:
     _permission: 'access dragon'
   methods: [ POST ]
 
-dragon.site_builder.create_twig:
-  path: '/js/grapesjs/create-twig'
+dragon.site_builder.generate:
+  path: '/js/grapesjs/generate'
   defaults:
-    _controller: '\Drupal\dragon\Controller\SiteBuilder::createTwig'
-  requirements:
-    _permission: 'access dragon'
-  methods: [ POST ]
-
-dragon.site_builder.build_theme:
-  path: '/js/grapesjs/build-theme'
-  defaults:
-    _controller: '\Drupal\dragon\Controller\SiteBuilder::buildTheme'
+    _controller: '\Drupal\dragon\Controller\SiteBuilder::generate'
   requirements:
     _permission: 'access dragon'
   methods: [ POST ]

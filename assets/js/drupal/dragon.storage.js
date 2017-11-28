@@ -32,7 +32,7 @@
               };
               $.ajax({
                 type: "POST",
-                url: "/js/grapesjs/build-theme",
+                url: "/js/grapesjs/generate",
                 data: params,
                 async: false,
                 success: function(e) {

@@ -18,4 +18,24 @@ interface GrapesJSPluginInterface {
   */
   public function drupalSettings();
 
+  /**
+  *  Is used when processing the DOM to generate the theme.
+  *  @return array(
+  *    // Return files that should be added to the theme.
+  *    'files' => [
+  *      [
+  *          'content' => '',
+  *          'uri' => ''
+  *       ],
+  *     ],
+  *     // Return preproces functions that should be included in the .theme file.
+  *     'functions' => [
+  *       $function_name => [
+  *         'content' => ''
+  *       ]
+  *     ]
+  )
+  */
+  public function generate(&$templates);
+
 }

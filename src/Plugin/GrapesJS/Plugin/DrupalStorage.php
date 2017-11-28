@@ -14,21 +14,21 @@ use Drupal\dragon\Plugin\GrapesJS\Plugin\GrapesJSPluginInterface;
 class DrupalStorage extends GrapesJSPluginBase implements GrapesJSPluginInterface {
 
     /**
-    * Return the DOM Element for this component.
+    * {@inheritdoc}
     */
     public function getLibrary() {
       return $this->pluginDefinition['library'];
     }
 
     /**
-    * Return preconfigured options for the plugin.
+    * {@inheritdoc}
     */
     public function getOptions() {
       return [ ];
     }
 
     /**
-    *
+    * {@inheritdoc}
     */
     public function drupalSettings() {
 
@@ -36,7 +36,6 @@ class DrupalStorage extends GrapesJSPluginBase implements GrapesJSPluginInterfac
       $path = \Drupal::service('path.current')->getPath();
       $path_args = explode('/', $path);
       $a = array_shift($path_args); // first is blank
-      // array_pop($path_args); // Remove layout
 
       $suggestions = ['page'] + theme_get_suggestions($path_args, 'page', '--');
 
@@ -49,17 +48,14 @@ class DrupalStorage extends GrapesJSPluginBase implements GrapesJSPluginInterfac
       $theme_path = drupal_get_path('theme', $current_theme);
       $existing_templates = [];
       foreach($suggestions as &$suggestion) {
-
         $suggestion = str_replace('--%', '', $suggestion);
-
         if ($this->templateExists($theme_path, $suggestion . '.html.twig')) {
           $existing_templates[] = $suggestion . '.html.twig';
         }
-        else if ($entity = entity_load('template', $suggestion . '.html.twig')) {
+        else if ($entity = entity_load('template', $current_theme . '-' . $suggestion . '.html.twig')) {
           $existing_templates[] = $suggestion . '.html.twig';
         }
       }
-
       return [
         'page' => [
           'current_theme' => $current_theme,
@@ -72,6 +68,11 @@ class DrupalStorage extends GrapesJSPluginBase implements GrapesJSPluginInterfac
         ]
       ];
     }
+
+    /**
+    * {@inheritdoc}
+    */
+    public function generate(&$html) { }
 
     /**
     * Used to scan a theme for the provides templates.

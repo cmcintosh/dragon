@@ -1,36 +1,4 @@
 (function($, Drupal) {
-
-    Drupal.behaviors.miniDragon = {
-      attach: function(context, settings) {
-        settings.miniDragon = {};
-        settings.miniDragon.modalTitle = "Editing Layout for Block";
-        settings.miniDragon.modalContent = '<div class="mini-dragon"> <div id="mini-dragon-editor"> </div> </div>';
-
-        // Display the modal for the mini dragon editor....
-        settings.miniDragon.show = function() {
-          Drupal.dialog($(settings.miniDragon.modalContent).html(), {
-            title: settings.miniDragon.modalTitle,
-            buttons: [
-              {
-                text: Drupal.t('Close'),
-                click: function() {
-                  $(this).dialog('close');
-                }
-              },
-              {
-                text: Drupal.t('Save & Update'),
-                click: function() {
-                  console.log("Save data here.... return the updated template to the main dragon.");
-                  $(this).dialog('close');
-                }
-              }
-            ]
-          }).showModal();
-        }
-
-      }
-    }
-
     Drupal.behaviors.dragon = {
         attach: function(context, settings) {
             var originalPage = $('body').html();
@@ -41,6 +9,41 @@
              * Displays or hides the loader animation.
              */
             var toggleLoader = function() { }
+
+            var getGoogleFonts = function() {
+              var fonts = [];
+              var fontLoader =[];
+              $.ajax({
+                url: "https://www.googleapis.com/webfonts/v1/webfonts?sort=popularity&key=AIzaSyBOghVvvBIvGVnjVQMBnkqwUaJzMKEcyEA",
+                context: document.body
+              }).done(function(resp) {
+                // Loop through and return available fonts.
+                for (var i in resp.items) {
+                  fontLoader.push(resp.items[i].family);
+
+                  fonts.push({
+                    value: resp.items[i].family,
+                    name: resp.items[i].family
+                  });
+
+                  if (fonts.length > 10) {
+                    break;
+                  }
+                }
+
+                WebFont.load({
+                  google: {
+                    families: fontLoader
+                  }
+                });
+
+                $( this ).addClass( "done" );
+              });
+
+
+
+              return fonts;
+            }
 
             /**
              * Style Manager Sectors, this is what defines what we can change.
@@ -126,7 +129,7 @@
                     properties: [{
                             name: 'Font',
                             property: 'font-family',
-                            // list: drupalSettings.dragon.siteBuilder.fonts
+                            list: getGoogleFonts(),
                         },
                         {
                             name: 'Weight',
@@ -542,19 +545,7 @@
                   iframe.contentDocument.head.appendChild(this);
                 });
 
-                settings.dragon.editor.getComponents().add('<style>.visually-hidden { display:none; }</style>');
-
                 $('body').prepend(toolbar);
-                $('body').css({ height: $(window).height(), width: $(window).width(), overflow:'hidden' });
-                $('.gjs-editor').css({
-                  height: '100%',
-                  top: ($('#toolbar-bar').height() + 30) + 'px'
-                });
-
-                $(window).on('resize', function(){
-                  $('body').css({ height: $(window).height(), width: $(window).width(), overflow:'hidden' });
-                  $('.gjs-editor').css({ height: '100%', top: ($('#toolbar-bar').height() + 30) + 'px'});
-                });
 
                 // Also add the search box for the components.
                 var pnm = settings.dragon.editor.Panels;
@@ -593,6 +584,7 @@
                 $('#gjs-pn-views .gjs-pn-btn').on('click', function(){
                   isBlocksVisible();
                 });
+
                 $('div#gjs-pn-search-a').show();
 
                 // Text search
@@ -609,7 +601,21 @@
                   });
                 });
 
-              $('#gjs-pn-search-a').css({'width' : $('#gjs-pn-views-container').width() + 'px'});
+                //  a bit of css to help with the width / layout of the search box
+                $('#gjs-pn-search-a').css({'width' : $('#gjs-pn-views-container').width() + 'px'});
+
+                // Font Family dynamic loading.
+                $('#gjs-sm-font-family .gjs-field.gjs-select select').on('change', function(){
+                    if (settings.dragon.page.fonts == undefined) {
+                      settings.dragon.page.fonts = [];
+                    }
+                    settings.dragon.page.fonts.push($(this).val());
+                    WebFont.load({
+                      google: {
+                        families: settings.dragon.page.fonts
+                      }
+                    });
+                });
             }
 
             /**
@@ -631,9 +637,6 @@
                 e.preventDefault();
                 return false;
             });
-
-
-
         }
     };
 

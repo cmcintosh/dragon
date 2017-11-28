@@ -21,9 +21,11 @@ class SiteBuilder extends ControllerBase implements ContainerInjectionInterface 
    * @var Symfony\Component\HttpKernel\HttpKernelInterface
    */
   protected $http_kernel;
+  protected $service;
 
   public function __construct(HttpKernelInterface $http_kernel) {
     $this->httpKernel = $http_kernel;
+     $this->service = \Drupal::service('plugin.manager.grapejs_plugin');
   }
 
   public static function create(ContainerInterface $container) {
@@ -33,110 +35,11 @@ class SiteBuilder extends ControllerBase implements ContainerInjectionInterface 
   }
 
   /**
-  * Returns the node title.
-  */
-  public function layoutNodeTitle($entity_type = "node", $node) {
-    $entity = entity_load($entity_type, $node);
-    return $entity->label;
-  }
-
-  /**
-  * Returns the site builder page.
-  */
-  public function layoutNodeBuilder ($view_mode = 'default', $entity_type = "node", $node) {
-    $entity = node_load($node);
-    $view_builder = \Drupal::entityTypeManager()->getViewBuilder($entity_type);
-    $storage = \Drupal::entityTypeManager()->getStorage($entity_type);
-    $build = $view_builder->view($entity, $view_mode);
-    $pluginData = $this->getGrapesJSPlugins($entity_type, $entity->bundle(), $entity);
-    $libraries = [
-      'dragon/siteBuilder'
-    ];
-    $libraries = array_merge($libraries, $pluginData['library']);
-    $current_theme = \Drupal::config('system.theme')->get('default');
-    $settings = [
-      'entity_type'      => $entity_type,
-      'bundle'           => $entity->bundle(),
-      'blocks'           => $this->getGrapesJSBlocks(),
-      'components'       => $this->getGrapesJSComponents(),
-      'plugins'          => $pluginData['plugins'],
-      'pluginsOpts'      => $pluginData['pluginsOpts'],
-      'assets'           => $this->getGrapesJSAssets(),
-      'devices'          => $this->getDevices(),
-      'fonts'            => $this->getFonts(),
-      'colors'           => $this->getColors(),
-      'current_template' => 'page.html.twig',
-      'current_theme'    => $current_theme,
-      'base_theme'       => $this->getBaseTheme($current_theme),
-      'built_by_dragon'  => $this->getBuiltByDragon($current_theme),
-      'preLoad'          => [],
-      'preStore'         => [],
-    ];
-
-    $settings += $pluginData['drupalSettings'];
-
-    return [
-      '#attached' => [
-        'drupalSettings' => [
-          'dragon' => [
-            'siteBuilder' => $settings
-          ]
-        ],
-        'library' => $libraries,
-      ],
-      'builder' => [
-        '#theme' => 'dragon_builder',
-      ],
-      'content' => $build
-    ];
-  }
-
-
-  /**
-  * Returns the mini-builder that will be used for entities.
-  */
-  public function entityBuilder (Request $request) {
-    $entity_type = $request->request->get('entity_type');
-    $bundle = $request->request->get('bundle');
-    $entity_id = $request->request->get('entity');
-
-  }
-
-  /**
-  * Internal function to get the defined Components.
-  */
-  private function getGrapesJSComponents() {
-    // @TODO: This needs a bit more thought....
-    return [];
-  }
-
-  /**
-  * Internal function to get the defined Blocks and add them to drupalSettings
-  */
-  private function getGrapesJSBlocks() {
-    $type = \Drupal::service('plugin.manager.grapejs_block');
-    $plugin_definitions = $type->getDefinitions();
-
-    $blockData = [];
-    foreach($plugin_definitions as $definition) {
-      $plugin = $type->createInstance($definition->id, []);
-      $blockData[$definition->id] = [
-        'label' => $plugin->getLabel(),
-        'attributes' => $plugin->getAttributes(),
-        'content' => $plugin->getTemplate(),
-      ];
-    }
-    return $blockData;
-  }
-
-  /**
   * Internal function to get the plugins defined and add them to drupalSettings.
   */
   private function getGrapesJSPlugins($entity_type, $bundle, $entity) {
     // @TODO: Create this plugin type....
-    $type = \Drupal::service('plugin.manager.grapejs_plugin');
-    $plugin_definitions = $type->getDefinitions();
-
+    $plugin_definitions = $this->type->getDefinitions();
     $pluginData = [
       'plugins' => [],
       'pluginsOpts' => [],
@@ -158,67 +61,9 @@ class SiteBuilder extends ControllerBase implements ContainerInjectionInterface 
   }
 
   /**
-  * Internal function to get Assets for grapejs.  Atm this is just images.
-  */
-  private function getGrapesJSAssets() {
-    // @TODO create this logic....
-    return [];
-  }
-
-  /**
-  * Internal function to get the defined Devices or Breakpoints.
-  */
-  private function getDevices() {
-    $entities = entity_load_multiple('breakpoint');
-
-    $devices = [];
-    foreach($entities as $entity) {
-      $devices[] = [
-        'name' => $entity->get('id'),
-        'width' => $entity->get('width')
-      ];
-    }
-    return $devices;
-  }
-
-  /**
-  * Internal function for getting the defined fonts.
-  */
-  private function getFonts() {
-    $entities = entity_load_multiple('font');
-
-    $fonts = [];
-    foreach($entities as $entity) {
-      $fonts[] = [
-        'value' => $entity->get('name'),
-        'name' => $entity->get('name'),
-        'class' => 'wem-font-' . $entity->get('id')
-      ];
-    }
-    return $fonts;
-  }
-
-  /**
-  * Internal function for getting the defined colors.
-  */
-  private function getColors() {
-    $entities = entity_load_multiple('color');
-
-    $colors = [];
-    foreach($entities as $entity) {
-      $colors[] = [
-        'value' => $entity->get('name'),
-        'name' => $entity->get('name'),
-        'class' => 'wem-color-' . $entity->get('id')
-      ];
-    }
-    return $colors;
-  }
-
-  /**
   * End point to get data from the builder.
   */
-  public function saveGrapesJS(Request $request) {
+  public function save(Request $request) {
 
     $template_id = $request->request->get('theme') . "-" . $request->request->get('template');
     $data = $request->request->get('data');
@@ -258,7 +103,7 @@ class SiteBuilder extends ControllerBase implements ContainerInjectionInterface 
   /**
   * End point to load data from drupal for the builder.
   */
-  public function loadGrapesJS(Request $request) {
+  public function load(Request $request) {
     $template_id = $request->request->get('theme') . "-" .$request->request->get('template');
     $entity = entity_load('template', $template_id);
     if ($entity) {
@@ -290,38 +135,41 @@ class SiteBuilder extends ControllerBase implements ContainerInjectionInterface 
   }
 
   /**
-  * End point to return html for a block.
-  */
-  public function returnBlock(Request $request) {
-    $entity = entity_load('block', $request->request->get('block_id'));
-    $display = \Drupal::entityTypeManager()
-      ->getViewBuilder('block')
-      ->view($entity);
-    return new JsonResponse([
-      'content' => render($display)
-    ]);
-  }
-
-  /**
-  * Endpoint used to save the template to a twig file.
-  */
-  public function createTwig(Request $request) {
-    return new JsonResponse([
-      'success' => 0
-    ]);
-  }
-
-  /**
   * Endpoint used to rebuild the theme.
   */
-  public function buildTheme(Request $request) {
-    // 1. Get the target theme's info.yml file.
-    $files = []; // Files that will be created for this theme.
-
+  public function generate(Request $request) {
+    // 1. Setup elements needed.
+    $files = [];     // Files that will be created for this theme.
+    $functions = []; // Theme functions to be included.
+    $plugin_definitions = $this->type->getDefinitions();
     $original_theme = $request->request->get('theme');
     $new_theme = $request->request->get('new_theme');
-
     $uri = drupal_get_path('theme', $original_theme) .  "/{$original_theme}.info.yml";
+
+    // 2. Load our templates
+    $query = \Drupal::entityQuery('template');
+    $entity_ids = $query->execute();
+    $templates = \Drupal::entityTypeManager()->getStorage('template')->loadMultiple($entity_ids);
+
+    // Next sort by weight.
+    usort($plugin_definitions, function($a, $b) {
+      return $a['weight'] < $b['weight'];
+    });
+
+    $data = [];
+
+    foreach($plugin_definitions as $id => $definition) {
+      $plugin = $this->manager->createInstance($id, [ ]);
+      $data[] = $plugin->generate($templates);
+    }
+
+    // 3. Generate the theme, for now just download - zip.
+    foreach($data as $row) {
+      // 3. a. create the files.
+
+
+    }
+
 
     $theme_info = \Symfony\Component\Yaml\Yaml::parse(file_get_contents($uri));
     $libraries_info = \Symfony\Component\Yaml\Yaml::parse(file_get_contents(drupal_get_path('theme', $original_theme) .  "/{$original_theme}.libraries.yml"));
@@ -360,13 +208,14 @@ class SiteBuilder extends ControllerBase implements ContainerInjectionInterface 
       'contents' => $info_yaml
     ];
 
+    // @todo find out how do do this via Yaml dump..
     $files[] = [
       'filename' => "{$new_theme}/{$new_theme}.libraries.yml",
       'contents' =>
       "global:
-          css:
-            theme:
-              dragon/css/style.css: {}"
+        css:
+          theme:
+            dragon/css/style.css: {}"
     ];
 
     // 2. Load all templates that are associated for the target theme from the database.
@@ -382,8 +231,6 @@ class SiteBuilder extends ControllerBase implements ContainerInjectionInterface 
         $id = $template->get('id');
         $data = $template->get('layout');
 
-        // @TODO add some handling for block / region / view / field templates...
-
         $template_path = "{$new_theme}/templates/system/" . $template->get('template');
         $css_content .= "\n\r" . $data['gjs-css'];
         $files[] = [
@@ -395,7 +242,7 @@ class SiteBuilder extends ControllerBase implements ContainerInjectionInterface 
     }
 
     $files[] = [
-      'filename' => $theme_uri . '/dragon/css/style.css',
+      'filename' => "{$new_theme}/dragon/css/style.css",
       'contents' => $style_css,
     ];
 

@@ -14,21 +14,21 @@ use Drupal\dragon\Plugin\GrapesJS\Plugin\GrapesJSPluginInterface;
 class DrupalFields extends GrapesJSPluginBase implements GrapesJSPluginInterface {
 
     /**
-    * Return the DOM Element for this component.
+    * {@inheritdoc}
     */
     public function getLibrary() {
       return $this->pluginDefinition['library'];
     }
 
     /**
-    * Return preconfigured options for the plugin.
+    * {@inheritdoc}
     */
     public function getOptions() {
       return [ ];
     }
 
     /**
-    * Return all of the defined drupal fields.
+    * {@inheritdoc}
     */
     public function drupalSettings() {
       $settings = [];
@@ -54,7 +54,7 @@ class DrupalFields extends GrapesJSPluginBase implements GrapesJSPluginInterface
               $fields[$id] = [
                 'id' => $id,
                 'label' => $field->getLabel(),
-                'value' => render($view),
+                'content' => render($view),
                 'entity_type' => $entity_type
               ];
             }
@@ -66,10 +66,17 @@ class DrupalFields extends GrapesJSPluginBase implements GrapesJSPluginInterface
       catch(\Exception $e) {
         watchdog_exception('dragon_drupal_fields', $e);
       }
-  
+
       return [
         'drupalFields' => $settings
       ];
     }
 
+
+    /**
+    * {@inheritdoc}
+    */
+    public function generate(&$html) {
+
+    }
 }
