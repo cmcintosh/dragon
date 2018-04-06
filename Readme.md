@@ -60,50 +60,50 @@ SUPPORT GOALS
 We are currently raising funds for the completion of this project. Our current supporter goals are below:
 
 - [ ] $250 _Production Ready_
-      - Full Page Theme builder for Drupal
-      - Exportable themes
-      - Documentation for extending Dragon with custom Elements
+-- Full Page Theme builder for Drupal
+-- Exportable themes
+-- Documentation for extending Dragon with custom Elements
 - [ ] $275  _WYSIWYG_
-      - Editor plugin for Long Text fields
-      - Additional widgets
-         - Slideshow widget
-         - Google Maps Widget ('Location markers')
-         - Youtube/Vimeo Widget
+-- Editor plugin for Long Text fields
+-- Additional widgets
+--- Slideshow widget
+--- Google Maps Widget ('Location markers')
+--- Youtube/Vimeo Widget
 - [ ] $325 _Deep Integration_
-      - Integration with Drupal 8 Javascript API for Behavior creation
-      - Web-based editor for creating new behaviors.
-      - Additional widgets:
-        - Media Selector widget
-        - Countdown Timer widget
-        - Image Gallery widget
-        - Portfolio Widget
-        - CTA Widget
-        - Social Icon(s) Widget
+-- Integration with Drupal 8 Javascript API for Behavior creation
+-- Web-based editor for creating new behaviors.
+-- Additional widgets:
+--- Media Selector widget
+--- Countdown Timer widget
+--- Image Gallery widget
+--- Portfolio Widget
+--- CTA Widget
+--- Social Icon(s) Widget
 - [ ] $375 _Going Commercial_
-     - Support for Drupal Commerce
-        - Cart Widgets
-        - Product Suggestion Widget
-        - Product Preview Widget
-        - Product Zoom Effect Widget
-        - Order History Widget
-      - Shortcode Support
-        - Ability to create and export shortcodes
-        - Ability to reuse shortcodes across site.
+-- Support for Drupal Commerce
+--- Cart Widgets
+--- Product Suggestion Widget
+--- Product Preview Widget
+--- Product Zoom Effect Widget
+--- Order History Widget
+-- Shortcode Support
+--- Ability to create and export shortcodes
+--- Ability to reuse shortcodes across site.
 - [ ] $400 _Forms and Things_
-      - Form Builder support
-        - Customize the layout and look of any Drupal form
-        - Create custom form elements
-        - Create behaviors for form elements
-      - Mautic Integration
-        - Support for customizing embedded Mautic generated forms
+-- Form Builder support
+--- Customize the layout and look of any Drupal form
+--- Create custom form elements
+--- Create behaviors for form elements
+-- Mautic Integration
+--- Support for customizing embedded Mautic generated forms
 - [ ] $500 _A/B Testing_
-      - Built in support for running an A/B test inside the theme
-      - Integration with third party services for tracking A/B testing
-        - Google Analytics
-        - Mautic
-      - Extensive A/B logic creation:
-        - rotation %
-        - ability to determine factors for scoring success
-        - integration with Hotjar
-        - integration with Open Web Analytics
-        - integration with ClickHeatMap
+-- Built in support for running an A/B test inside the theme
+-- Integration with third party services for tracking A/B testing
+--- Google Analytics
+--- Mautic
+--- Extensive A/B logic creation:
+---- rotation %
+---- ability to determine factors for scoring success
+---- integration with Hotjar
+---- integration with Open Web Analytics
+---- integration with ClickHeatMap
