@@ -6,23 +6,25 @@ var TraitNumberView = require('./TraitNumberView');
 var TraitColorView = require('./TraitColorView');
 
 module.exports = DomainViews.extend({
-
   itemView: TraitView,
 
   itemsView: {
-    'text': TraitView,
-    'number': TraitNumberView,
-    'select': TraitSelectView,
-    'checkbox': TraitCheckboxView,
-    'color': TraitColorView,
+    text: TraitView,
+    number: TraitNumberView,
+    select: TraitSelectView,
+    checkbox: TraitCheckboxView,
+    color: TraitColorView
   },
 
-  initialize(o) {
-    this.config = o.config || {};
+  initialize(o = {}) {
+    const config = o.config || {};
+    this.config = config;
     this.em = o.editor;
-    this.pfx = this.config.stylePrefix || '';
+    this.pfx = config.stylePrefix || '';
+    this.ppfx = config.pStylePrefix || '';
     this.className = this.pfx + 'traits';
-    this.listenTo(this.em, 'change:selectedComponent', this.updatedCollection);
+    const toListen = 'component:selected component:update:traits';
+    this.listenTo(this.em, toListen, this.updatedCollection);
     this.updatedCollection();
   },
 
@@ -31,12 +33,13 @@ module.exports = DomainViews.extend({
    * @private
    */
   updatedCollection() {
-    this.el.className = this.className;
-    var comp = this.em.get('selectedComponent');
-    if(comp){
+    const ppfx = this.ppfx;
+    const comp = this.em.getSelected();
+    this.el.className = `${this.className} ${ppfx}one-bg ${ppfx}two-color`;
+
+    if (comp) {
       this.collection = comp.get('traits');
       this.render();
     }
-  },
-
+  }
 });

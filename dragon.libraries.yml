@@ -3,6 +3,13 @@ google-fonts:
   version: 1.x
   js:
     https://ajax.googleapis.com/ajax/libs/webfont/1.6.16/webfont.js: {}
+
+font-awesome:
+  version: 4.x
+  css:
+    theme:
+      assets/library/components-font-awesome/css/font-awesome.css: {}
+
 spectrum:
   version: 1.x
   css:
@@ -10,12 +17,6 @@ spectrum:
       assets/library/spectrum/spectrum.css: {}
   js:
     assets/library/spectrum/spectrum.js: {}
-
-font-awesome:
-  version: 4.x
-  css:
-    theme:
-      assets/library/font-awesome/css/font-awesome.css: {}
 
 ruler:
   version: 1.x
@@ -25,114 +26,12 @@ ruler:
   js:
     assets/library/ruler/jquery.ruler.js: {}
 
-perfectScrollbar:
-  version: 0.1
-  css:
-    theme:
-      assets/library/perfect-scrollbar/perfect-scrollbar.css: {}
+toastr:
+  version: 1.x
   js:
-    assets/library/perfect-scrollbar/perfect-scrollbar.min.js: {}
+    assets/library/toastr/toastr.min.js: {}
 
-grapesjs-preset-webpage:
-  version: 0.1
-  css:
-    theme:
-      assets/library/grapesjs-preset-webpage/grapesjs-preset-webpage.css: {}
-  js:
-    assets/library/grapesjs-preset-webpage/grapesjs-preset-webpage.js: {}
-  dependencies:
-    - dragon/grapejs
-
-grapesjs-aviary:
-  version: 0.10.7
-  js:
-    assets/library/grapesjs-aviary/dist/grapesjs-aviary.min.js: {}
-    //feather.aviary.com/imaging/v3/editor.js: {}
-  dependencies:
-    - dragon/grapejs
-
-grapesjs-navbar:
-  version: 0.10.7
-  js:
-    assets/library/grapesjs-navbar/dist/grapesjs-navbar.min.js: {}
-  dependencies:
-    - dragon/grapejs
-
-grapesjs-ckeditor:
-  version: 0.10.7
-  js:
-    assets/library/grapesjs-plugin-ckeditor/dist/grapesjs-plugin-ckeditor.min.js: {}
-  dependencies:
-    - dragon/grapejs
-    - ckeditor/drupal.ckeditor
-
-grapesjs-export:
-  version: 0.10.7
-  js:
-    assets/library/grapesjs-plugin-export/dist/grapesjs-plugin-export.min.js: {}
-  dependencies:
-    - dragon/grapejs
-
-grapesjs-filestack:
-  version: 0.10.7
-  js:
-    assets/library/grapesjs-plugin-filestack/dist/grapesjs-plugin-filestack.min.js: {}
-    //static.filestackapi.com/v3/filestack-0.1.12.js: {}
-  dependencies:
-    - dragon/grapejs
-
-grapesjs-forms:
-  version: 0.10.7
-  js:
-    assets/library/grapesjs-plugin-forms/dist/grapesjs-plugin-forms.min.js: {}
-  dependencies:
-    - dragon/grapejs
-
-grapesjs-countdown:
-  version: 0.10.7
-  js:
-    assets/library/grapesjs-component-countdown/dist/grapesjs-component-countdown.min.js: {}
-  dependencies:
-    - dragon/grapejs
-
-grapesjs-blocks-basic:
-  version: 0.10.7
-  js:
-    assets/library/grapesjs-blocks-basic/dist/grapesjs-blocks-basic.min.js: {}
-  dependencies:
-    - dragon/grapejs
-
-chosen:
-  version: 0.1
-  css:
-    theme:
-      assets/library/chosen/chosen.css: {}
-  js:
-    assets/library/chosen/chosen.jquery.js: {}
-  dependencies:
-    - jquery
-
-drupalRegions:
-  version: 0.1
-  js:
-    assets/js/drupal/dragon.regions.js: {}
-
-drupalFields:
-  version: 0.1
-  js:
-    assets/js/drupal/dragon.fields.js: {}
-
-drupalBlocks:
-  version: 0.1
-  js:
-    assets/js/drupal/dragon.blocks.js: {}
-
-drupalStorage:
-  version: 0.1
-  js:
-    assets/js/drupal/dragon.storage.js: {}
-  dependencies:
-    - dragon/chosen
+# GrapesJS Libraries
 
 grapesjs:
   version: 0.10.7
@@ -141,44 +40,86 @@ grapesjs:
       assets/library/grapesjs/dist/css/grapes.min.css: {}
   js:
     assets/library/grapesjs/dist/grapes.min.js: {}
-    assets/library/toastr/toastr.min.js: {}
   dependencies:
     - core/jquery
-    - dragon/perfectScrollbar
 
-dragon_color:
-  version: 1.x
+grapesjs-aviary:
+  version: 0.10.7
   js:
-    assets/js/colors/admin.js: {}
+    //feather.aviary.com/imaging/v3/editor.js: {}
+    assets/library/grapesjs-aviary/dist/grapesjs-aviary.min.js: {}
   dependencies:
-    - dragon/dragon_admin
-    - dragon/spectrum
+    - dragon/grapesjs
 
-dragon_breakpoints:
-  version: 1.x
+grapesjs-blocks-basic:
+  version: 0.10.7
   js:
-    assets/js/breakpoints/admin.js: {}
+    assets/library/grapesjs-blocks-basic/dist/grapesjs-blocks-basic.min.js: {}
   dependencies:
-    - dragon/dragon_admin
+    - dragon/grapesjs
 
-dragon_admin:
-  version: 1.x
+grapesjs-component-countdown:
+  version: 0.10.7
+  js:
+    assets/library/grapesjs-component-countdown/dist/grapesjs-component-countdown.min.js: {}
+  dependencies:
+    - dragon/grapesjs
+
+grapesjs-navbar:
+  version: 0.10.7
+  js:
+    assets/library/grapesjs-navbar/dist/grapesjs-navbar.min.js: {}
+  dependencies:
+    - dragon/grapesjs
+
+grapesjs-plugin-ckeditor:
+  version: 0.10.7
+  js:
+    assets/library/grapesjs-plugin-ckeditor/dist/grapesjs-plugin-ckeditor.min.js: {}
+  dependencies:
+    - dragon/grapesjs
+    - ckeditor/drupal.ckeditor
+
+grapesjs-plugin-export:
+  version: 0.10.7
+  js:
+    assets/library/grapesjs-plugin-export/dist/grapesjs-plugin-export.min.js: {}
+  dependencies:
+    - dragon/grapesjs
+
+grapesjs-plugin-filestack:
+  version: 0.10.7
+  js:
+    //static.filestackapi.com/v3/filestack-0.1.12.js: {}
+    assets/library/grapesjs-plugin-filestack/dist/grapesjs-plugin-filestack.min.js: {}
+  dependencies:
+    - dragon/grapesjs
+
+grapesjs-forms:
+  version: 0.10.7
+  js:
+    assets/library/grapesjs-plugin-forms/dist/grapesjs-plugin-forms.min.js: {}
+  dependencies:
+    - dragon/grapesjs
+
+grapesjs-preset-webpage:
+  version: 0.1
   css:
     theme:
-      assets/css/dragon.admin.css: {}
+      assets/library/grapesjs-preset-webpage/dist/grapesjs-preset-webpage.min.css: {}
+  js:
+    assets/library/grapesjs-preset-webpage/dist/grapesjs-preset-webpage.min.js: {}
   dependencies:
-    - core/jquery
-    - core/drupalSettings
-    - dragon/ruler
-    - dragon/formBuilder
+    - dragon/grapesjs
 
+# Drupal Related libraries.
 builder:
   version: 1.x
   css:
     theme:
       assets/css/dragon.builder.css: {}
   js:
-    assets/js/drupal/dragon.builder.js: {}
+    assets/app/dragon.js: {}
   dependencies:
     - core/jquery
     - core/jquery.once

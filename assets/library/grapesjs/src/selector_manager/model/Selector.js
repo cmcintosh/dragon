@@ -1,69 +1,80 @@
 var Backbone = require('backbone');
 
-const Selector = Backbone.Model.extend({
+const TYPE_CLASS = 1;
+const TYPE_ID = 2;
 
-  idAttribute: 'name',
+const Selector = Backbone.Model.extend(
+  {
+    idAttribute: 'name',
 
-  defaults: {
-    name: '',
-    label: '',
+    defaults: {
+      name: '',
 
-    // Type of the selector
-    type: 'class',
+      label: '',
 
-    // If not active it's not selectable by the style manager (uncheckboxed)
-    active: true,
+      // Type of the selector
+      type: TYPE_CLASS,
 
-    // Can't be seen by the style manager, therefore even by the user
-    // Will be rendered only in export code
-    private: false,
+      // If not active it's not selectable by the style manager (uncheckboxed)
+      active: true,
 
-    // If true, can't be removed by the user, from the attacched element
-    protected: false,
-  },
+      // Can't be seen by the style manager, therefore even by the user
+      // Will be rendered only in export code
+      private: false,
 
-  initialize() {
-    const name = this.get('name');
-    const label = this.get('label');
+      // If true, can't be removed from the attacched element
+      protected: false
+    },
 
-    if (!name) {
-      this.set('name', label);
-    } else if (!label) {
-      this.set('label', name);
+    initialize() {
+      const name = this.get('name');
+      const label = this.get('label');
+
+      if (!name) {
+        this.set('name', label);
+      } else if (!label) {
+        this.set('label', name);
+      }
+
+      this.set('name', Selector.escapeName(this.get('name')));
+    },
+
+    /**
+     * Get full selector name
+     * @return {string}
+     */
+    getFullName() {
+      let init = '';
+
+      switch (this.get('type')) {
+        case TYPE_CLASS:
+          init = '.';
+          break;
+        case TYPE_ID:
+          init = '#';
+          break;
+      }
+
+      return init + this.get('name');
     }
-
-    this.set('name', Selector.escapeName(this.get('name')));
   },
+  {
+    // All type selectors: https://developer.mozilla.org/it/docs/Web/CSS/CSS_Selectors
+    // Here I define only what I need
+    TYPE_CLASS,
 
-  /**
-   * Get full selector name
-   * @return {string}
-   */
-  getFullName() {
-    let init = '';
+    TYPE_ID,
 
-    switch (this.get('type')) {
-      case 'class':
-        init = '.';
-        break;
-      case 'id':
-        init = '#';
-        break;
+    /**
+     * Escape string
+     * @param {string} name
+     * @return {string}
+     * @private
+     */
+    escapeName(name) {
+      return `${name}`.trim().replace(/([^a-z0-9\w-]+)/gi, '-');
     }
-
-    return init + this.get('name');
   }
-
-}, {
-  /**
-   * Escape string
-   * @param {string} name
-   * @return {string}
-   * @private
-   */
-  escapeName(name) {
-    return `${name}`.trim().replace(/([^a-z0-9\w-]+)/gi, '-');
-  },
-});
+);
 
 module.exports = Selector;

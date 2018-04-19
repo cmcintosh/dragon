@@ -35,7 +35,7 @@
         cmdm.add('drupal-block-edit', {
           run: function(editor, sender) {
             var target = editor.getSelected().attributes.attributes['data-block'];
-            console.log(target);
+            
             // Redirect to this block's editing page.
             modal.setTitle("Select template for " + target);
 

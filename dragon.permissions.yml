@@ -1,17 +1,2 @@
 access dragon:
   title: 'Administer Dragon'
-
-administer dragon_fonts:
-  title: 'Manage Fonts'
-
-administer dragon_colors:
-  title: 'Manage Colors'
-
-administer dragon_breakpoints:
-  title: 'Manage Breakpoints'
-
-administer dragon_templates:
-  title: 'Manage Templates'
-
-recreate theme:
-  title: 'Allow Users to recreate the theme'

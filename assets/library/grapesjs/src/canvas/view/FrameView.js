@@ -1,38 +1,51 @@
-var Backbone = require('backbone');
+import { bindAll } from 'underscore';
 
-module.exports = Backbone.View.extend({
+const motionsEv =
+  'transitionend oTransitionEnd transitionend webkitTransitionEnd';
 
+module.exports = require('backbone').View.extend({
   tagName: 'iframe',
 
   attributes: {
-    src: 'about:blank',
     allowfullscreen: 'allowfullscreen'
   },
 
   initialize(o) {
-    _.bindAll(this, 'udpateOffset');
+    bindAll(this, 'udpateOffset');
     this.config = o.config || {};
     this.ppfx = this.config.pStylePrefix || '';
     this.em = this.config.em;
-    this.motionsEv = 'transitionend oTransitionEnd transitionend webkitTransitionEnd';
-    this.listenTo(this.em, 'change:device', this.updateWidth);
+    this.listenTo(this.em, 'change:device', this.updateDim);
   },
 
   /**
-   * Update width of the frame
+   * Update dimensions of the frame
    * @private
    */
-  updateWidth(model) {
-    var device = this.em.getDeviceModel();
-    this.el.style.width = device ? device.get('width') : '';
+  updateDim(model) {
+    const em = this.em;
+    const device = em.getDeviceModel();
+    const style = this.el.style;
+    const currW = style.width || '';
+    const currH = style.height || '';
+    const newW = device ? device.get('width') : '';
+    const newH = device ? device.get('height') : '';
+    const noChanges = currW == newW && currH == newH;
+    style.width = newW;
+    style.height = newH;
     this.udpateOffset();
-    this.$el.on(this.motionsEv, this.udpateOffset);
+    // Prevent fixed highlighting box which appears when on
+    // component hover during the animation
+    em.stopDefault({ preserveSelected: 1 });
+    noChanges ? this.udpateOffset() : this.$el.on(motionsEv, this.udpateOffset);
   },
 
   udpateOffset() {
-    var offset = this.em.get('Canvas').getOffset();
-    this.em.set('canvasOffset', offset);
-    this.$el.off(this.motionsEv, this.udpateOffset);
+    const em = this.em;
+    const offset = em.get('Canvas').getOffset();
+    em.set('canvasOffset', offset);
+    em.runDefault({ preserveSelected: 1 });
+    this.$el.off(motionsEv, this.udpateOffset);
   },
 
   getBody() {
@@ -44,8 +57,7 @@ module.exports = Backbone.View.extend({
   },
 
   render() {
-    this.$el.attr({class: this.ppfx + 'frame'});
+    this.$el.attr({ class: this.ppfx + 'frame' });
     return this;
-  },
-
+  }
 });

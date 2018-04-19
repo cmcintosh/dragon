@@ -1,15 +1,20 @@
 var Backbone = require('backbone');
 var ComponentView = require('./ComponentImageView');
+var OComponentView = require('./ComponentView');
 
 module.exports = ComponentView.extend({
-
   tagName: 'div',
 
   events: {},
 
   initialize(o) {
-    ComponentView.prototype.initialize.apply(this, arguments);
-    this.listenTo(this.model, 'change:loop change:autoplay change:controls change:color', this.updateVideo);
+    OComponentView.prototype.initialize.apply(this, arguments);
+    this.listenTo(this.model, 'change:src', this.updateSrc);
+    this.listenTo(
+      this.model,
+      'change:loop change:autoplay change:controls change:color',
+      this.updateVideo
+    );
     this.listenTo(this.model, 'change:provider', this.updateProvider);
   },
 
@@ -50,7 +55,8 @@ module.exports = ComponentView.extend({
     var videoEl = this.videoEl;
     var md = this.model;
     switch (prov) {
-      case 'yt': case 'vi':
+      case 'yt':
+      case 'vi':
         this.model.trigger('change:videoId');
         break;
       default:
@@ -113,6 +119,5 @@ module.exports = ComponentView.extend({
     var prov = this.model.get('provider');
     this.el.appendChild(this.renderByProvider(prov));
     return this;
-  },
-
+  }
 });

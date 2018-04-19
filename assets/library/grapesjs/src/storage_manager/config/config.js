@@ -24,7 +24,7 @@ module.exports = {
   //Enable/Disable saving HTML template
   storeHtml: 1,
 
-  //Enable/Disable saving HTML template
+  //Enable/Disable saving CSS template
   storeCss: 1,
 
   // ONLY FOR LOCAL STORAGE
@@ -32,8 +32,11 @@ module.exports = {
   checkLocal: 1,
 
   // ONLY FOR REMOTE STORAGE
-  // Custom params that should be passed with each store/load request
+  // Custom parameters to pass with the remote storage request, eg. csrf token
   params: {},
+
+  // Custom headers for the remote storage request
+  headers: {},
 
   // Endpoint where to save all stuff
   urlStore: '',
@@ -51,5 +54,4 @@ module.exports = {
   // true: application/json; charset=utf-8'
   // false: 'x-www-form-urlencoded'
   contentTypeJson: false
-
 };

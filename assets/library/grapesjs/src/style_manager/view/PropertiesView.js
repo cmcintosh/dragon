@@ -1,15 +1,13 @@
-var Backbone = require('backbone');
-var PropertyView = require('./PropertyView');
-var PropertyIntegerView = require('./PropertyIntegerView');
-var PropertyRadioView = require('./PropertyRadioView');
-var PropertySelectView = require('./PropertySelectView');
-var PropertyColorView = require('./PropertyColorView');
-var PropertyFileView = require('./PropertyFileView');
-var PropertyCompositeView = require('./PropertyCompositeView');
-var PropertyStackView = require('./PropertyStackView');
+const PropertyView = require('./PropertyView');
+const PropertyIntegerView = require('./PropertyIntegerView');
+const PropertyRadioView = require('./PropertyRadioView');
+const PropertySelectView = require('./PropertySelectView');
+const PropertyColorView = require('./PropertyColorView');
+const PropertyFileView = require('./PropertyFileView');
+const PropertyCompositeView = require('./PropertyCompositeView');
+const PropertyStackView = require('./PropertyStackView');
 
 module.exports = Backbone.View.extend({
-
   initialize(o) {
     this.config = o.config || {};
     this.pfx = this.config.stylePrefix || '';
@@ -18,34 +16,49 @@ module.exports = Backbone.View.extend({
     this.onChange = o.onChange;
     this.onInputRender = o.onInputRender || {};
     this.customValue = o.customValue || {};
+    this.properties = [];
+    const coll = this.collection;
+    this.listenTo(coll, 'add', this.addTo);
+    this.listenTo(coll, 'reset', this.render);
+  },
+
+  addTo(model) {
+    this.add(model);
+  },
+
+  add(model, frag) {
+    var view = new model.typeView({
+      model,
+      name: model.get('name'),
+      id: this.pfx + model.get('property'),
+      target: this.target,
+      propTarget: this.propTarget,
+      onChange: this.onChange,
+      onInputRender: this.onInputRender,
+      config: this.config
+    });
+
+    if (model.get('type') != 'composite') {
+      view.customValue = this.customValue;
+    }
+
+    view.render();
+    const el = view.el;
+    this.properties.push(view);
+
+    if (frag) {
+      frag.appendChild(el);
+    } else {
+      this.el.appendChild(el);
+    }
   },
 
   render() {
-    var fragment = document.createDocumentFragment();
-
-    this.collection.each((model) => {
-      var view = new model.typeView({
-        model,
-        name: model.get('name'),
-        id: this.pfx + model.get('property'),
-        target: this.target,
-        propTarget: this.propTarget,
-        onChange: this.onChange,
-        onInputRender: this.onInputRender,
-        config: this.config,
-      });
-
-      if(model.get('type') != 'composite'){
-        view.customValue = this.customValue;
-      }
-
-      view.render();
-      fragment.appendChild(view.el);
-    });
-
+    this.properties = [];
+    const fragment = document.createDocumentFragment();
+    this.collection.each(model => this.add(model, fragment));
     this.$el.append(fragment);
-    this.$el.append($('<div>', {class: "clear"}));
-    this.$el.attr('class', this.pfx + 'properties');
+    this.$el.attr('class', `${this.pfx}properties`);
     return this;
   }
 });

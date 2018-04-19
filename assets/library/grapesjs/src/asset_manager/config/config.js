@@ -1,4 +1,4 @@
-module.exports =  {
+module.exports = {
   // Default assets
   // eg. [
   //  'https://...image1.png',
@@ -66,7 +66,9 @@ module.exports =  {
 
   // Enable an upload dropzone on the entire editor (not document) when dragging
   // files over it
-  dropzone: 1,
+  // If active the dropzone disable/hide the upload dropzone in asset modal,
+  // otherwise you will get double drops (#507)
+  dropzone: 0,
 
   // Open the asset manager once files are been dropped via the dropzone
   openAssetsOnDrop: 1,
@@ -76,4 +78,7 @@ module.exports =  {
 
   // Default title for the asset manager modal
   modalTitle: 'Select Image',
+
+  //Default placeholder for input
+  inputPlaceholder: 'http://path/to/the/image.jpg'
 };

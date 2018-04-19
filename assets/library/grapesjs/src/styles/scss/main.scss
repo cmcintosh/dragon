@@ -48,6 +48,26 @@
   transform: $v;
 }
 
+$prefix: $app-prefix;
+
+.#{$prefix} {
+  @each $cnum, $ccol in (one, $primaryColor), (two, $secondaryColor), (three, $tertiaryColor), (four, $quaternaryColor) {
+    &#{$cnum} {
+      &-bg {
+        background-color: $ccol;
+      }
+
+      &-color {
+        color: $ccol;
+
+        &-h:hover {
+          color: $ccol;
+        }
+      }
+    }
+  }
+}
+
 
 .#{$app-prefix}bg {
   &-main {
@@ -193,83 +213,26 @@
  	@include user-select(none);
 }
 
-.#{$app-prefix}editor{
-	font-family: $mainFont;
-	background-color: $mainColor;
-	position:relative;
-	box-sizing: border-box;
-	height: 100%;
+.#{$app-prefix}editor {
+  font-family: $mainFont;
+  font-size: $fontSizeS;
+  position: relative;
+  box-sizing: border-box;
+  height: 100%;
 }
+
 .#{$app-prefix}freezed,
 .#{$nv-prefix}freezed {
   @include opacity(0.50);
   pointer-events: none;
 }
 
-/*************  TRAITS  ****************/
-.#{$app-prefix}traits-label {
-  border-bottom: 1px solid $mainDkColor;
-  font-size: 13px;
-  font-weight: lighter;
-  margin-bottom: 5px;
-  padding: 10px;
-  text-align: left;
-}
-.#{$trt-prefix}trait {
-  display: flex;
-  justify-content: start;
-  padding: 5px 10px;
-  font-size: 0.75em;
-  font-weight: lighter;
-
-  .#{$app-prefix}label {
-    width: 30%;
-    text-align: left;
-  }
-
-  .#{$app-prefix}field {
-    width: 70%;
-  }
-}
-
-/*************  CANVAS  ****************/
-
+@import "gjs_traits";
 @import "gjs_canvas";
 
-/*************  RTE  ****************/
-#commands.panel {
-    min-width: 35px;
-    height: 100%;
-    z-index:3;
-}
-#options.panel{ z-index:4; bottom: 0;}
-#views.panel {
-	width: 16.5%;
-	font-weight: lighter;
-	color:  $fontColor;
-	right:0; top:0;
-  	z-index: 3;
-  	height: 100%;
-  	padding:0;
-}
-#views.panel .c{height:100%}
-#commands.panel, #options.panel {width: 3.5%; left:0;}
-#options .c { display: table;  margin: 0 auto; }
-
-/*********TEST**********/
-body.dragging, body.dragging * { cursor: move !important;}
-.dragged {
-	position: absolute;
-	@include opacity(0.50);
-	z-index: 2000;}
-ol.example li.placeholder {position: relative;}
-ol.example li.placeholder:before {position: absolute;}
-/*********END-TEST**********/
+/********* COMMANDS **********/
 
 .no-dots, .ui-resizable-handle{ border: none !important; margin:0 !important; outline: none !important; }
-
-
-/********* COMMANDS **********/
 
 .#{$com-prefix}dashed *{
 	outline: 1px dashed #888;
@@ -341,114 +304,7 @@ ol.example li.placeholder:before {position: absolute;}
   outline: none;
 }
 
-/********* PANELS **********/
-
-.#{$pn-prefix}panel {
-  @extend .#{$app-prefix}bg-main;
-  @extend .#{$app-prefix}color-main;
-  display: inline-block;
-  padding: 5px;
-  position: absolute;
-  box-sizing: border-box;
-  text-align: center;
-  z-index:3;
-
-  &##{$pn-prefix}commands{
-    width: (100% - $leftWidth);
-    left:0; top: 0;
-    box-shadow: 0 0 5px $mainDkColor;
-  }
-
-  &##{$pn-prefix}options{
-  	right: $leftWidth;
-    top: 0;
-  }
-
-  &##{$pn-prefix}options2{
-  	@extend ##{$pn-prefix}commands;
-  	bottom: 150px;
-  	height: auto;
-  }
-
-  .icon-undo, .icon-redo{
-  	font-size: 20px;
-    height: 30px;
-    width: 25px;
-  }
-
-  &##{$pn-prefix}views{
-  	border-bottom: 2px solid $mainDkColor;
-  	right: 0;
-  	width: $leftWidth;
-  	z-index: 4;
-  }
-
-  &##{$pn-prefix}views-container{
-  	height: 100%;
-    padding: 42px 0 0;
-    right: 0;
-    width: $leftWidth;
-    overflow: auto;
-    box-shadow: 0 0 5px $mainDkColor;
-  }
-}
-
-.#{$pn-prefix}buttons{
-  align-items: center;
-  display: flex;
-  justify-content: center;
-}
-
-.#{$pn-prefix}btn, .#{$app-prefix}btnt{
-  @extend .#{$app-prefix}color-main;
-	box-sizing: border-box;
-	height: 30px; width: 30px;
-	line-height: 21px;
-	background-color: transparent;
-	border:none;
-	font-size: 18px;
-	margin-right: 5px;
-	border-radius: 2px;
-	cursor: pointer;
-	padding: 5px;
-	position: relative;
-
-	&.#{$pn-prefix}active{
-    @extend .#{$app-prefix}color-active;
-		background-color: rgba(0, 0, 0, 0.15);
-    box-shadow: 0 0 3px rgba(0, 0, 0, 0.25) inset;
-	}
-
-	> .#{$pn-prefix}arrow-rd {
-	  	border-bottom: 5px solid $mainLhlColor;
-	  	border-left: 5px solid transparent;
-	  	bottom: 2px; right: 2px;
-	  	position: absolute;
-	}
-
-	> .#{$pn-prefix}buttons{
-		background-color: $mainColor;
-		border-radius: 2px;
-		position: absolute;
-		display: none;
-		left: 50px;
-		top: 0;
-		padding: 5px;
-
-		&.#{$pn-prefix}visible{ display: block; }
-
-		> .#{$pn-prefix}arrow-l {
-			border-bottom: 5px solid transparent;
-		    border-right: 5px solid $mainColor;
-		    border-top: 5px solid transparent;
-		    left: -5px; top: 15px;
-		    position: absolute;
-		}
-	}
-}
-
-/* pa-refresh pa-rocket pa-trash pa-columns pa-rotate-left/right */
-.btn.expand{ background-image: none;}
+@import 'gjs_panels';
 
 /***********  Components *************/
 
@@ -473,36 +329,7 @@ ol.example li.placeholder:before {position: absolute;}
 
 @import "gjs_inputs";
 
-/********* Device Manager **********/
-
-.#{$app-prefix}devices-c{
-  display: flex;
-  align-items: center;
-  padding: 4px;
-  /*
-  padding: 10px 5px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-  margin-bottom: 10px;
-  */
-
-  .#{$app-prefix}device-label {
-    flex-grow: 2;
-    font-size: 0.7em;
-    text-align: left;
-    margin-right: 10px;
-  }
-
-  .#{$app-prefix}select{
-    flex-grow: 20;
-  }
-
-  .#{$app-prefix}add-trasp{
-    flex-grow: 1;
-    margin-left: 5px;
-  }
-}
-
-/********* END Device Manager **********/
+@import "gjs_devices";
 
 
 /********* General **********/
@@ -516,7 +343,6 @@ ol.example li.placeholder:before {position: absolute;}
 
   font-weight: lighter;
   background-color: $mainDklColor;
-  font-size: 13px;
   letter-spacing: 1px;
   padding: 9px 10px 9px 20px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.25);
@@ -525,175 +351,11 @@ ol.example li.placeholder:before {position: absolute;}
   cursor: pointer;
 }
 
-/********* Style Manager **********/
-
 @import "gjs_style_manager";
-
-/********* Blocks **********/
-
 @import "gjs_blocks";
-
-/************* Navigator *************/
-
 @import "gjs_layers";
-
-/********* Class manager **********/
-
-.#{$clm-prefix}field{
-		@extend .#{$sm-prefix}field
-}
-.#{$clm-prefix}select{
-		@extend .#{$sm-prefix}field.#{$sm-prefix}select;
-}
-
-.#{$clm-prefix}tags{
-	@extend .#{$sm-prefix}sector;
-	font-size: 11px;
-	padding: 10px 5px;
-
-	##{$clm-prefix}label, ##{$clm-prefix}sel{
-		padding: 7px 0;
-		float:left;
-	}
-  ##{$clm-prefix}sel{
-    font-style: italic;
-    margin-left: 5px;
-  }
-	##{$clm-prefix}status-c{
-		float:right;
-	}
-
-	##{$clm-prefix}tags-field{
-		clear:both;
-		padding: 5px;
-		margin-bottom: 5px;
-	}
-	##{$clm-prefix}tags-c{
-		display: inline-block;
-		vertical-align: top;
-	}
-
-	##{$clm-prefix}add-tag{
-		background-color: rgba(255, 255, 255, 0.15);
-		border-radius: 2px;
-    padding: $paddElClm;
-    box-shadow: 1px 1px 0 rgba(255, 255, 255, 0.2) inset;
-    border: 1px solid rgba(0, 0, 0, 0.15);
-    cursor: pointer;
-	}
-
-	##{$clm-prefix}new {
-		@extend  .#{$app-prefix}invis-invis;
-		color: $fontColor;
-		padding: $paddElClm;
-		display:none;
-	}
-
-	.#{$clm-prefix}tag {
-		background-color: $tagBg;
-		border: 1px solid darken($tagBg, 12%);
-		box-shadow: 1px 1px lighten($tagBg, 9%) inset;
-		text-shadow: 1px 1px darken($tagBg, 7%);
-		display: inline-block;
-		border-radius:3px;
-		margin: 0 3px 3px 0;
-    padding: 4px;
-    cursor: default;
-	}
-	##{$clm-prefix}close {
-		@extend  .opac50;
-		font-size: 20px;
-    line-height: 0;
-    cursor:pointer;
-    color: rgba(255, 255, 255, 0.9);
-    @extend  .no-select;
-    &:hover{
-    	@include opacity(0.7);
-    }
-	}
-	##{$clm-prefix}checkbox {
-    color: rgba(255, 255, 255, 0.9);
-		vertical-align: middle;
-		cursor: pointer;
-		font-size: 9px;
-	}
-
-	##{$clm-prefix}tag-label {
-		cursor: text;
-		@extend  .no-select;
-
-    input {
-      width: auto;
-      padding: 0 4px;
-    }
-	}
-}
-/********* END Class manager **********/
-
-/********* Modal dialog **********/
-
-.#{$mdl-prefix}backlayer {
-	background-color: #000;
-  	position: absolute;
-  	top: 0; left: 0;
-    z-index: 1;
-  	width:100%; height:100%;
-  	@include opacity(0.5);
-}
-
-.#{$mdl-prefix}container {
-		font-family: $mainFont;
-  	position: absolute;
-  	top: 0; left: 0;
-    z-index: 10;
-  	width:100%; height:100%;
-}
-
-.#{$mdl-prefix}dialog {
-  	@extend .#{$app-prefix}bg-main;
-    @extend .#{$app-prefix}color-main;
-  	text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.05);
-    animation: #{$app-prefix}slide-down 0.215s;
-  	margin: 30px auto 0;
-  	max-width: 850px;
-  	width: 90%;
-   	border-radius: 3px;
-   	font-weight: lighter;
-   	position:relative;
-   	z-index: 2;
-
-   	.#{$mdl-prefix}btn-close {
-   		@extend .btn-cl;
-   		position: absolute;
-   		right: 15px; top: 5px;
-    }
-}
-
-.#{$mdl-prefix}active .#{$mdl-prefix}dialog {
-  animation: #{$mdl-prefix}slide-down .216s;
-}
-
-.#{$mdl-prefix}header, .#{$mdl-prefix}content{
-	padding:10px 15px;
-	clear: both;
-}
-.#{$mdl-prefix}header{
-	position: relative;
-	border-bottom: 1px solid $mainDkColor;
-	padding: 15px 15px 7px;
-}
-.#{$mdl-prefix}content{
-	border-top: 1px solid $mainLhColor;
-}
-.#{$app-prefix}export-dl::after{
-  content: "";
-  clear: both;
-  display:block;
-  margin-bottom:10px;
-}
-
-/********* Assets Manager **********/
-
+@import "gjs_selectors";
+@import "gjs_modal";
 @import "gjs_assets";
 
 /********* File uploader **********/
@@ -756,7 +418,6 @@ ol.example li.placeholder:before {position: absolute;}
 	}
 	&##{$cm-prefix}css {
 		padding-left: 10px;
-		border-left: 1px solid $mainLhColor;
 		##{$cm-prefix}title { color: #ddca7e;}
 	}
 	##{$cm-prefix}title {
@@ -769,99 +430,73 @@ ol.example li.placeholder:before {position: absolute;}
 
 /*************RTE****************/
 
-##{$rte-prefix}toolbar {
-  @extend .#{$app-prefix}bg-main;
-  display: none;
-  border: 1px solid $mainDkColor;
-  position: absolute;
-  border-radius: 3px;
-  z-index: 10;
-
-  .#{$rte-prefix}btn {
-  	@extend .#{$app-prefix}color-main;
-    display: inline-block;
-		padding: 5px;
-		min-width:	25px;
-		border-right: 1px solid $mainDkColor;
-		text-align: center;
-		cursor: pointer;
-		outline: none;
-
-	  	&:last-child{ border-right:none; }
-	  	&.btn-info{ background-color: $mainDkColor;}
-	  	&:hover {  background-color: $mainLhColor;}
-	}
-
-  select{
-    height: 16px;
-  }
-}
+@import 'gjs_rte';
 
 /********* Spectrum **********/
 
-.sp-hue, .sp-slider{ cursor: row-resize;}
-.sp-color, .sp-dragger{ cursor: crosshair;}
-.sp-alpha-inner, .sp-alpha-handle{cursor: col-resize;}
-.sp-hue{ left: 90%; }
-.sp-color{right: 15%;}
-.sp-container {
-  @extend .#{$app-prefix}bg-main;
-  border: 1px solid $mainDkColor;
-  box-shadow: 0 0 7px $mainDkColor;
-  border-radius: 3px;
-}
-.sp-picker-container{border:none;}
-.colpick_dark .colpick_color {  outline: 1px solid $mainDkColor;}
-.sp-cancel, .sp-cancel:hover {
-  bottom: -8px;
-  color: #777 !important;
-  font-size: 25px;
-  left: 0;
-  position: absolute;
-  text-decoration:none;
-}
-.sp-alpha-handle {
-  background-color: #ccc;
-  border: 1px solid #555;
-  width: 4px;
-}
-.sp-color, .sp-hue { border: 1px solid #333333;}
-.sp-slider {
-  background-color: #ccc;
-  border: 1px solid #555;
-  height: 3px;
-  left: -4px;
-  width: 22px;
-}
-.sp-dragger{background:transparent; box-shadow: 0 0 0 1px #111;}
-.sp-button-container{
-	float: none;
-	width: 100%;
-	position: relative;
-	text-align: right;
-}
-.sp-container button, .sp-container button:hover, .sp-container button:active{
-	background: $mainDkColor;
-  border-color: $mainDkColor;
-  color: $fontColor;
-  text-shadow: none;
-  box-shadow: none;
-  padding: 3px 5px;
-}
-.sp-palette-container{
-  border: none;
-  float:none;
-  margin:0;
-  padding:5px 10px 0;
-}
-.sp-palette .sp-thumb-el, .sp-palette .sp-thumb-el:hover{
-  border: 1px solid rgba(0, 0, 0, 0.9);
-}
+.#{$app-prefix}editor-cont {
+  .sp-hue, .sp-slider{ cursor: row-resize;}
+  .sp-color, .sp-dragger{ cursor: crosshair;}
+  .sp-alpha-inner, .sp-alpha-handle{cursor: col-resize;}
+  .sp-hue{ left: 90%; }
+  .sp-color{right: 15%;}
+  .sp-container {
+    border: 1px solid $mainDkColor;
+    box-shadow: 0 0 7px $mainDkColor;
+    border-radius: 3px;
+  }
+  .sp-picker-container{border:none;}
+  .colpick_dark .colpick_color {  outline: 1px solid $mainDkColor;}
+  .sp-cancel, .sp-cancel:hover {
+    bottom: -8px;
+    color: #777 !important;
+    font-size: 25px;
+    left: 0;
+    position: absolute;
+    text-decoration:none;
+  }
+  .sp-alpha-handle {
+    background-color: #ccc;
+    border: 1px solid #555;
+    width: 4px;
+  }
+  .sp-color, .sp-hue { border: 1px solid #333333;}
+  .sp-slider {
+    background-color: #ccc;
+    border: 1px solid #555;
+    height: 3px;
+    left: -4px;
+    width: 22px;
+  }
+  .sp-dragger{background:transparent; box-shadow: 0 0 0 1px #111;}
+  .sp-button-container{
+  	float: none;
+  	width: 100%;
+  	position: relative;
+  	text-align: right;
+  }
+  .sp-container button, .sp-container button:hover, .sp-container button:active{
+  	background: $mainDkColor;
+    border-color: $mainDkColor;
+    color: $fontColor;
+    text-shadow: none;
+    box-shadow: none;
+    padding: 3px 5px;
+  }
+  .sp-palette-container{
+    border: none;
+    float:none;
+    margin:0;
+    padding:5px 10px 0;
+  }
+  .sp-palette .sp-thumb-el, .sp-palette .sp-thumb-el:hover{
+    border: 1px solid rgba(0, 0, 0, 0.9);
+  }
 
-.sp-palette .sp-thumb-el:hover, .sp-palette .sp-thumb-el.sp-thumb-active {
-  border-color: rgba(0, 0, 0, 0.9);
+  .sp-palette .sp-thumb-el:hover, .sp-palette .sp-thumb-el.sp-thumb-active {
+    border-color: rgba(0, 0, 0, 0.9);
+  }
 }
-
 
 .#{$app-prefix}hidden {
   display: none;
@@ -887,4 +522,8 @@ ol.example li.placeholder:before {position: absolute;}
     transform: translate(0, -3rem);
     opacity: 0;
   }
+}
+
+.cm-s-hopscotch span.cm-error {
+    color: #ffffff;
 }

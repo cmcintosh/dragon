@@ -9,9 +9,6 @@ function dragon_theme($existing, $type, $theme, $path) {
       'render element' => 'form',
       'template' => 'dragon-breakpoint-form'
     ],
-    'dragon_ab_panel' => [
-      'template' => 'dragon-ab-panel'
-    ],
     'dragon_builder' => [
       'variables' => [
         'content' => NULL,
@@ -22,127 +19,79 @@ function dragon_theme($existing, $type, $theme, $path) {
 }
 
 
+
 /**
- * Implements hook_page_attachments().
- */
-function dragon_page_attachments(array &$attachments) {
-  $attachments['#attached']['library'][] = 'dragon/builder';
+* Implements hook_preprocess_field
+*/
+function dragon_preprocess_field(&$vars) {
+  $vars['attributes']['gjs-field-id'] = $vars['field_name'];
+  $vars['attributes']['gjs-field-type'] = $vars['field_type'];
 }
 
 /**
-* Implements hook_preprocess_page
+* hook_preprocess_menu
 */
-function dragon_preprocess_page(&$vars) {
-  if (\Drupal::currentUser()->hasPermission('access dragon')) {
-    // Get plugins
-    $type = \Drupal::service('plugin.manager.grapejs_plugin');
-    $plugin_definitions = $type->getDefinitions();
-    $config = \Drupal::config('dragon.settings');
-
-    $pluginData = [
-      'plugins' => [],
-      'pluginsOpts' => [],
-      'library' => [],
-      'drupalSettings' => [],
-    ];
-
-    foreach($plugin_definitions as $definition) {
-      $plugin = $type->createInstance($definition['id'], []);
-      $pluginData['plugins'][] = $definition['id'];
-      $pluginData['pluginsOpts'][] = $plugin->getOptions();
-      $pluginData['library'][] = $plugin->getLibrary();
-      $settings = $plugin->drupalSettings();
-      if ($settings) {
-        foreach($settings as $id => $setting) {
-          $pluginData['drupalSettings'][$id] = $setting;
-        }
-      }
-    }
-
-    $current_theme = \Drupal::config('system.theme')->get('default');
-    $base_theme = dragon_base_theme($current_theme);
-    $dragon_built = built_by_dragon($current_theme);
-
-    // initialize our settings.
-    $vars['#attached']['drupalSettings']['dragon'] = [
-      'builder' => [
-        'state' => FALSE,
-        'plugins' => $pluginData['plugins'],
-        'pluginOpts' => $pluginData['pluginsOpts'],
-        'assets' => [],
-        'preLoad' => [],
-        'preStore' => [],
-        'google_font_api' => $config->get('google_font_api')
-      ],
-      'page' => [
-        'rebuild_theme' => false,
-        'base_theme' => $base_theme,
-        'current_theme' => $current_theme,
-        'dragon_built' => $dragon_built,
-        'current_variant' => 'original'
-      ],
-    ];
-
-    foreach($pluginData['drupalSettings'] as $id => $settings) {
-      $vars['#attached']['drupalSettings']['dragon'][$id] = $settings;
-    }
-
-    foreach($pluginData['library'] as $id => $library) {
-      $vars['#attached']['library'][] = $library;
-    }
-
-  }
+function dragon_preprocess_menu(&$vars) {
+  $vars['attributes']['gjs-menu-id'] = $vars['menu_name'];
 }
 
 /**
 * Implements hook_preprocess_region
 */
 function dragon_preprocess_region(&$vars) {
-  if (\Drupal::currentUser()->hasPermission('access dragon')) {
-    $vars['attributes']['data-region'] = 1;
+  $vars['attributes']['gjs-region-id'] = $vars['region'];
+
+  $path = \Drupal::service('path.current')->getPath();
+  $path_args = explode('/', $path);
+  $a = array_shift($path_args);
+
+  $suggestions = ['region'] + theme_get_suggestions($path_args, 'region', '--');
+  $region_id_suggestions = [];
+  foreach($suggestions as $id => $suggestion) {
+    $region_id_suggestions[] = "{$suggestion}--{$vars['region']}";
   }
+  $vars['#attached']['drupalSettings']['dragon']['theme']['suggestions']['regions'][$vars['region']] = array_merge($suggestions, $region_id_suggestions);
 }
 
 /**
-* Implements hook_preprocess_block
-* - adds the data-block attribute to blocks to signify them in the Dragon Editor.
-* - adds the data-gjs-editable to the blocks in an attempt to prevent editing them.
+* Implements hook_preprocess_page
 */
-function dragon_preprocess_block(&$vars) {
-  if (\Drupal::currentUser()->hasPermission('access dragon')) {
-    $vars['attributes']['data-block'] = $vars['elements']['#plugin_id'];
-    $vars['attributes']['data-gjs-editable'] = false;
-  }
+function dragon_preprocess_page(&$vars) {
+
+  // Add in our core libraries.
+  $vars['#attached']['library'][] = 'dragon/builder';
+  $vars['#attached']['library'][] = 'dragon/grapesjs-preset-webpage';
+  $vars['#attached']['library'][] = 'dragon/grapesjs-aviary';
+  $vars['#attached']['library'][] = 'dragon/grapesjs-navbar';
+  $vars['#attached']['library'][] = 'dragon/grapesjs-ckeditor';
+  $vars['#attached']['library'][] = 'dragon/grapesjs-export';
+  $vars['#attached']['library'][] = 'dragon/grapesjs-filestack';
+  $vars['#attached']['library'][] = 'dragon/grapesjs-forms';
+  $vars['#attached']['library'][] = 'dragon/grapesjs-countdown';
+  $vars['#attached']['library'][] = 'dragon/grapesjs-blocks-basic';
+
+  $theme_info = \Drupal::service('theme.manager')->getActiveTheme();
+
+  $vars['#attached']['drupalSettings']['dragon']['theme'] = [
+    'name' => $theme_info->getName(),
+    'engine' => $theme_info->getEngine(),
+    'libraries' => $theme_info->getLibraries(),
+    'regions' => $theme_info->getRegions(),
+  ];
+
+  $path = \Drupal::service('path.current')->getPath();
+      $path_args = explode('/', $path);
+      $a = array_shift($path_args);
+
+  $vars['#attached']['drupalSettings']['dragon']['theme']['suggestions'] = [
+    'page' => ['page'] + theme_get_suggestions($path_args, 'page', '--'),
+  ];
 }
 
 /**
-* Implements hook_preprocess_field
-* - This is useful as we can add a wrapper <field></field> tag
-* and include data-field attribute.
+* Implements hook_entity_view_alter.
 */
-function dragon_preprocess_field(&$vars) {
-  $vars['attributes']['data-field'] = $vars['entity_type'] . '.' . $vars['field_name'];
-}
-
-
-/**
-* Gets the base theme name for the theme provided.
-*/
-function dragon_base_theme($theme) {
-  $uri = drupal_get_path('theme', $theme) .  "/{$theme}.info.yml";
-  $theme_info = \Symfony\Component\Yaml\Yaml::parse(file_get_contents($uri));
-  if (isset($theme_info['base theme'])) {
-    return $theme_info['base theme'];
-  }
-  return '';
-}
-
-
-/**
-* returns if this theme was built by dragon.
-*/
-function built_by_dragon($theme) {
-  $uri = drupal_get_path('theme', $theme) .  "/{$theme}.info.yml";
-  $theme_info = \Symfony\Component\Yaml\Yaml::parse(file_get_contents($uri));
-  return (isset($theme_info['dragon_built']));
+function dragon_entity_view_alter(array &$build, Drupal\Core\Entity\EntityInterface $entity, \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display) {
+  $build['#attributes']['gjs-entity-type'] = $build['#entity_type'];
+  // $build['#attributes']['gjs-entity-bundle'] = $build[$build['#entity_type']]->bundle();
 }

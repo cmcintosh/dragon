@@ -1,5 +1,9 @@
 module.exports = {
-  stylePrefix: 'nv-',
+  stylePrefix: '',
+
+  // Specify the element to use as a container, string (query) or HTMLElement
+  // With the empty value, nothing will be rendered
+  appendTo: '',
 
   // Enable/Disable globally the possibility to sort layers
   sortable: 1,
@@ -11,5 +15,5 @@ module.exports = {
   hideTextnode: 1,
 
   // Indicates if the wrapper is visible in layers
-  showWrapper: 1,
+  showWrapper: 1
 };

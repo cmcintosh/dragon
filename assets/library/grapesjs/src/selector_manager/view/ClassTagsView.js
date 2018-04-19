@@ -33,7 +33,7 @@ module.exports = Backbone.View.extend({
 
   events: {},
 
-  initialize(o) {
+  initialize(o = {}) {
     this.config = o.config || {};
     this.pfx = this.config.stylePrefix || '';
     this.ppfx = this.config.pStylePrefix || '';
@@ -48,10 +48,15 @@ module.exports = Backbone.View.extend({
     this.events['keyup #' + this.newInputId] = 'onInputKeyUp';
     this.events['change #' + this.stateInputId] = 'stateChanged';
 
-    this.target  = this.config.em;
+    this.target = this.config.em;
+    this.em = this.target;
 
-    this.listenTo(this.target ,'change:selectedComponent',this.componentChanged);
-    this.listenTo(this.target, 'targetClassUpdated', this.updateSelector);
+    this.listenTo(
+      this.target,
+      'change:selectedComponent',
+      this.componentChanged
+    );
+    this.listenTo(this.target, 'component:update:classes', this.updateSelector);
 
     this.listenTo(this.collection, 'add', this.addNew);
     this.listenTo(this.collection, 'reset', this.renderClasses);
@@ -76,8 +81,13 @@ module.exports = Backbone.View.extend({
    */
   getStateOptions() {
     var strInput = '';
-    for(var i = 0; i < this.states.length; i++){
-      strInput += '<option value="' + this.states[i].name + '">' + this.states[i].label + '</option>';
+    for (var i = 0; i < this.states.length; i++) {
+      strInput +=
+        '<option value="' +
+        this.states[i].name +
+        '">' +
+        this.states[i].label +
+        '</option>';
     }
     return strInput;
   },
@@ -97,7 +107,7 @@ module.exports = Backbone.View.extend({
    * @private
    */
   startNewTag(e) {
-    this.$addBtn.hide();
+    this.$addBtn.get(0).style.display = 'none';
     this.$input.show().focus();
   },
 
@@ -107,7 +117,7 @@ module.exports = Backbone.View.extend({
    * @private
    */
   endNewTag(e) {
-    this.$addBtn.show();
+    this.$addBtn.get(0).style.display = '';
     this.$input.hide().val('');
   },
 
@@ -117,10 +127,8 @@ module.exports = Backbone.View.extend({
    * @private
    */
   onInputKeyUp(e) {
-    if (e.keyCode === 13)
-      this.addNewTag(this.$input.val());
-    else if(e.keyCode === 27)
-      this.endNewTag();
+    if (e.keyCode === 13) this.addNewTag(this.$input.val());
+    else if (e.keyCode === 27) this.endNewTag();
   },
 
   /**
@@ -148,10 +156,12 @@ module.exports = Backbone.View.extend({
    * @private
    */
   updateStateVis() {
-    if(this.collection.length)
-      this.getStatesC().css('display','block');
-    else
-      this.getStatesC().css('display','none');
+    const em = this.em;
+    const avoidInline = em && em.getConfig('avoidInlineStyle');
+
+    if (this.collection.length || avoidInline)
+      this.getStatesC().css('display', 'block');
+    else this.getStatesC().css('display', 'none');
     this.updateSelector();
   },
 
@@ -161,23 +171,20 @@ module.exports = Backbone.View.extend({
    * @private
    */
   updateSelector() {
-    const selected = this.target.get('selectedComponent');
+    const selected = this.target.getSelected();
     this.compTarget = selected;
-    if(!selected || !selected.get)
-      return;
-    var result = '';
-    this.collection.each(model => {
-      if(model.get('active'))
-        result += '.' + model.get('name');
-    });
-    var state = selected.get('state');
-    result = state ? result + ':' + state : result;
-    result = result || selected.getName();
-    var el = this.el.querySelector('#' + this.pfx + 'sel');
 
-    if (el) {
-      el.innerHTML = result;
+    if (!selected || !selected.get) {
+      return;
     }
+
+    const state = selected.get('state');
+    const coll = this.collection;
+    let result = coll.getFullString(coll.getStyleable());
+    result = result || `#${selected.getId()}`;
+    result += state ? `:${state}` : '';
+    const el = this.el.querySelector('#' + this.pfx + 'sel');
+    el && (el.innerHTML = result);
   },
 
   /**
@@ -186,10 +193,8 @@ module.exports = Backbone.View.extend({
    * @private
    */
   stateChanged(e) {
-    if(this.compTarget){
+    if (this.compTarget) {
       this.compTarget.set('state', this.$states.val());
-      if(this.target)
-        this.target.trigger('targetStateUpdated');
       this.updateSelector();
     }
   },
@@ -209,7 +214,7 @@ module.exports = Backbone.View.extend({
 
     if (target) {
       const sm = target.get('SelectorManager');
-      var model = sm.add({label});
+      var model = sm.add({ label });
 
       if (component) {
         var compCls = component.get('classes');
@@ -217,11 +222,6 @@ module.exports = Backbone.View.extend({
         compCls.add(model);
         var lenA = compCls.length;
         this.collection.add(model);
-
-        if (lenA > lenB) {
-          target.trigger('targetClassAdded');
-        }
-
         this.updateStateVis();
       }
     }
@@ -236,19 +236,17 @@ module.exports = Backbone.View.extend({
    * @private
    * */
   addToClasses(model, fragmentEl) {
-    var fragment  = fragmentEl || null;
+    var fragment = fragmentEl || null;
 
     var view = new ClassTagView({
-        model,
-        config: this.config,
-        coll: this.collection,
+      model,
+      config: this.config,
+      coll: this.collection
     });
-    var rendered  = view.render().el;
+    var rendered = view.render().el;
 
-    if(fragment)
-      fragment.appendChild(rendered);
-    else
-      this.getClasses().append(rendered);
+    if (fragment) fragment.appendChild(rendered);
+    else this.getClasses().append(rendered);
 
     return rendered;
   },
@@ -261,12 +259,14 @@ module.exports = Backbone.View.extend({
   renderClasses() {
     var fragment = document.createDocumentFragment();
 
-    this.collection.each(function(model){
+    this.collection.each(function(model) {
       this.addToClasses(model, fragment);
-    },this);
+    }, this);
 
-    if(this.getClasses())
-      this.getClasses().empty().append(fragment);
+    if (this.getClasses())
+      this.getClasses()
+        .empty()
+        .append(fragment);
 
     return this;
   },
@@ -277,7 +277,7 @@ module.exports = Backbone.View.extend({
    * @private
    */
   getClasses() {
-    if(!this.$classes)
+    if (!this.$classes)
       this.$classes = this.$el.find('#' + this.pfx + 'tags-c');
     return this.$classes;
   },
@@ -288,8 +288,7 @@ module.exports = Backbone.View.extend({
    * @private
    */
   getStates() {
-    if(!this.$states)
-      this.$states = this.$el.find('#' + this.stateInputId);
+    if (!this.$states) this.$states = this.$el.find('#' + this.stateInputId);
     return this.$states;
   },
 
@@ -299,29 +298,31 @@ module.exports = Backbone.View.extend({
    * @private
    */
   getStatesC() {
-    if(!this.$statesC)
-      this.$statesC = this.$el.find('#' + this.stateInputC);
+    if (!this.$statesC) this.$statesC = this.$el.find('#' + this.stateInputC);
     return this.$statesC;
   },
 
   render() {
+    const ppfx = this.ppfx;
     const config = this.config;
-    this.$el.html(this.template({
-      selectedLabel: config.selectedLabel,
-      statesLabel: config.statesLabel,
-      label: config.label,
-      pfx: this.pfx,
-      ppfx: this.ppfx,
-    }));
-    this.$input = this.$el.find('input#' + this.newInputId);
-    this.$addBtn = this.$el.find('#' + this.addBtnId);
-    this.$classes = this.$el.find('#' + this.pfx + 'tags-c');
-    this.$states = this.$el.find('#' + this.stateInputId);
-    this.$statesC = this.$el.find('#' + this.stateInputC);
+    const $el = this.$el;
+    $el.html(
+      this.template({
+        selectedLabel: config.selectedLabel,
+        statesLabel: config.statesLabel,
+        label: config.label,
+        pfx: this.pfx,
+        ppfx: this.ppfx
+      })
+    );
+    this.$input = $el.find('input#' + this.newInputId);
+    this.$addBtn = $el.find('#' + this.addBtnId);
+    this.$classes = $el.find('#' + this.pfx + 'tags-c');
+    this.$states = $el.find('#' + this.stateInputId);
+    this.$statesC = $el.find('#' + this.stateInputC);
     this.$states.append(this.getStateOptions());
     this.renderClasses();
-    this.$el.attr('class', this.className);
+    $el.attr('class', `${this.className} ${ppfx}one-bg ${ppfx}two-color`);
     return this;
-  },
-
+  }
 });

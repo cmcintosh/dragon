@@ -3,8 +3,9 @@
 .sass-cache/
 .project
 .eslintrc
+.idea
 npm-debug.log
-style/.sass-cache/
+_index.html
 
 img/
 images/

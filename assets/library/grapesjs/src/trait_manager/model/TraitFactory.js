@@ -1,6 +1,4 @@
-var Backbone = require('backbone');
-
-module.exports = (() => ({
+module.exports = (config = {}) => ({
   /**
    * Build props object by their name
    * @param  {Array<string>|string} props Array of properties name
@@ -9,8 +7,7 @@ module.exports = (() => ({
   build(props) {
     var objs = [];
 
-    if(typeof props === 'string')
-      props = [props];
+    if (typeof props === 'string') props = [props];
 
     for (var i = 0; i < props.length; i++) {
       var obj = {};
@@ -26,22 +23,20 @@ module.exports = (() => ({
 
       // Define placeholder
       switch (prop) {
-        case 'title': case 'alt': case 'id':
-          obj.placeholder = 'eg. Text here';
+        case 'title':
+        case 'alt':
+        case 'id':
+          obj.placeholder = config.labelPlhText;
           break;
         case 'href':
-          obj.placeholder = 'eg. https://google.com';
+          obj.placeholder = config.labelPlhHref;
           break;
       }
-
 
       // Define options
       switch (prop) {
         case 'target':
-          obj.options = [
-            {value: '', name: 'This window'},
-            {value: '_blank', name: 'New window'}
-          ];
+          obj.options = config.optionsTarget;
           break;
       }
 
@@ -50,4 +45,4 @@ module.exports = (() => ({
 
     return objs;
   }
-}))();
+});

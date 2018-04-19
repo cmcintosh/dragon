@@ -1,5 +1,6 @@
-module.exports = {
+const $ = Backbone.$;
 
+module.exports = {
   getOffsetMethod(state) {
     var method = state || '';
     return 'get' + method + 'OffsetViewerEl';
@@ -10,8 +11,10 @@ module.exports = {
     var state = opt.state || '';
     var config = editor.getConfig();
 
-    if (!config.showOffsets ||
-        (!config.showOffsetsSelected && state == 'Fixed') ) {
+    if (
+      !config.showOffsets ||
+      (!config.showOffsetsSelected && state == 'Fixed')
+    ) {
       return;
     }
 
@@ -34,22 +37,24 @@ module.exports = {
     var padL = this['padL' + state];
     var padR = this['padR' + state];
 
-    if(!this[stateVar]) {
+    if (!this[stateVar]) {
       var stateLow = state.toLowerCase();
       var marginName = stateLow + 'margin-v';
       var paddingName = stateLow + 'padding-v';
-      var marginV = $('<div>', {class: ppfx + marginName}).get(0);
-      var paddingV = $('<div>', {class: ppfx + paddingName}).get(0);
+      var marginV = $(`<div class="${ppfx}marginName">`).get(0);
+      var paddingV = $(`<div class="${ppfx}paddingName">`).get(0);
       var marginEls = ppfx + marginName + '-el';
       var paddingEls = ppfx + paddingName + '-el';
-      marginT = $('<div>', {class: ppfx + marginName + '-top ' + marginEls}).get(0);
-      marginB = $('<div>', {class: ppfx + marginName + '-bottom ' + marginEls}).get(0);
-      marginL = $('<div>', {class: ppfx + marginName + '-left ' + marginEls}).get(0);
-      marginR = $('<div>', {class: ppfx + marginName + '-right ' + marginEls}).get(0);
-      padT = $('<div>', {class: ppfx + paddingName + '-top ' + paddingEls}).get(0);
-      padB = $('<div>', {class: ppfx + paddingName + '-bottom ' + paddingEls}).get(0);
-      padL = $('<div>', {class: ppfx + paddingName + '-left ' + paddingEls}).get(0);
-      padR = $('<div>', {class: ppfx + paddingName + '-right ' + paddingEls}).get(0);
+      const fullMargName = `${marginEls} ${ppfx + marginName}`;
+      const fullPadName = `${paddingEls} ${ppfx + paddingName}`;
+      marginT = $(`<div class="${fullMargName}-top"></div>`).get(0);
+      marginB = $(`<div class="${fullMargName}-bottom"></div>`).get(0);
+      marginL = $(`<div class="${fullMargName}-left"></div>`).get(0);
+      marginR = $(`<div class="${fullMargName}-right"></div>`).get(0);
+      padT = $(`<div class="${fullPadName}-top"></div>`).get(0);
+      padB = $(`<div class="${fullPadName}-bottom"></div>`).get(0);
+      padL = $(`<div class="${fullPadName}-left"></div>`).get(0);
+      padR = $(`<div class="${fullPadName}-right"></div>`).get(0);
       this['marginT' + state] = marginT;
       this['marginB' + state] = marginB;
       this['marginL' + state] = marginL;
@@ -121,7 +126,7 @@ module.exports = {
     pbStyle.top = pos.top + pos.height - padBot + unit;
     pbStyle.left = posLeft + unit;
 
-    var padSideH = (pos.height - padBot - padTop) + unit;
+    var padSideH = pos.height - padBot - padTop + unit;
     var padSideT = pos.top + padTop + unit;
     plStyle.height = padSideH;
     plStyle.width = style.paddingLeft;
@@ -142,6 +147,5 @@ module.exports = {
     var canvas = editor.Canvas;
     var offsetViewer = canvas[method]();
     offsetViewer.style.display = 'none';
-  },
-
+  }
 };

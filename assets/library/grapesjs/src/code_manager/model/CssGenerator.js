@@ -1,107 +1,81 @@
-var Backbone = require('backbone');
-
-module.exports = Backbone.Model.extend({
-
+module.exports = require('backbone').Model.extend({
   initialize() {
     this.compCls = [];
+    this.ids = [];
   },
 
   /**
-   * Get CSS from component
+   * Get CSS from a component
    * @param {Model} model
    * @return {String}
    */
   buildFromModel(model, opts = {}) {
-    var code = '';
-    var style = model.get('style');
-    var classes = model.get('classes');
+    let code = '';
+    const em = this.em;
+    const avoidInline = em && em.getConfig('avoidInlineStyle');
+    const style = model.styleToString();
+    const classes = model.get('classes');
     const wrappesIsBody = opts.wrappesIsBody;
+    const isWrapper = model.get('wrapper');
+    this.ids.push(`#${model.getId()}`);
 
     // Let's know what classes I've found
-    if(classes) {
-      classes.each(function(model){
-        this.compCls.push(model.get('name'));
-      }, this);
-    }
+    classes.each(model => this.compCls.push(model.getFullName()));
 
-    if(style && Object.keys(style).length !== 0) {
+    if ((!avoidInline || isWrapper) && style) {
       let selector = `#${model.getId()}`;
-      selector = wrappesIsBody && model.get('wrapper') ?
-        'body' : selector;
-      code += `${selector}{`;
-      for(var prop in style){
-        if(style.hasOwnProperty(prop))
-          code += prop + ':' + style[prop] + ';';
-      }
-      code += '}';
+      selector = wrappesIsBody && isWrapper ? 'body' : selector;
+      code = `${selector}{${style}}`;
     }
 
+    const components = model.components();
+    components.each(model => (code += this.buildFromModel(model, opts)));
     return code;
   },
 
-  /**
-   * Get CSS from components
-   * @param {Model} model
-   * @return {String}
-   */
-  buildFromComp(model) {
-    var coll = model.get('components') || model,
-      code = '';
-
-    coll.each(function(m) {
-      var cln = m.get('components');
-      code += this.buildFromModel(m);
-
-      if(cln.length){
-        code += this.buildFromComp(cln);
-      }
-
-    }, this);
-
-    return code;
-  },
-
-  /** @inheritdoc */
   build(model, opts = {}) {
     const cssc = opts.cssc;
+    const em = opts.em || '';
+    this.em = em;
     this.compCls = [];
+    this.ids = [];
     var code = this.buildFromModel(model, opts);
-    code += this.buildFromComp(model);
-    var compCls = this.compCls;
 
     if (cssc) {
-      var rules = cssc.getAll();
-      var mediaRules = {};
-      rules.each(function(rule) {
-        var width = rule.get('mediaText');
+      const rules = cssc.getAll();
+      const atRules = {};
+      const dump = [];
 
-        // If width setted will render it later
-        if(width){
-          var mRule = mediaRules[width];
-          if(mRule)
-            mRule.push(rule);
-          else
-            mediaRules[width] = [rule];
+      rules.each(rule => {
+        const atRule = rule.getAtRule();
+
+        if (atRule) {
+          const mRules = atRules[atRule];
+          if (mRules) {
+            mRules.push(rule);
+          } else {
+            atRules[atRule] = [rule];
+          }
           return;
         }
 
-        code += this.buildFromRule(rule);
-      }, this);
+        code += this.buildFromRule(rule, dump);
+      });
 
-      // Get media rules
-      for (var ruleW in mediaRules) {
-        var meRules = mediaRules[ruleW];
-        var ruleC = '';
-        for(var i = 0, len = meRules.length; i < len; i++){
-          ruleC += this.buildFromRule(meRules[i]);
-        }
+      // Get at-rules
+      for (let atRule in atRules) {
+        let rulesStr = '';
+        const mRules = atRules[atRule];
+        mRules.forEach(rule => (rulesStr += this.buildFromRule(rule, dump)));
 
-        if (ruleC) {
-          code += '@media ' + ruleW + '{' + ruleC + '}';
+        if (rulesStr) {
+          code += `${atRule}{${rulesStr}}`;
         }
       }
 
+      em && em.getConfig('clearStyles') && rules.remove(dump);
     }
+
     return code;
   },
 
@@ -110,43 +84,28 @@ module.exports = Backbone.Model.extend({
    * @param {Model} rule
    * @return {string} CSS string
    */
-  buildFromRule(rule) {
-    var result = '';
-    var selectorsAdd = rule.get('selectorsAdd');
-    var selectors = rule.get('selectors');
-    var ruleStyle = rule.get('style');
-    var state = rule.get('state');
-    var strSel = '';
-    var found = 0;
-    var compCls = this.compCls;
+  buildFromRule(rule, dump) {
+    let result = '';
+    const selectorStrNoAdd = rule.selectorsToString({ skipAdd: 1 });
+    const selectorsAdd = rule.get('selectorsAdd');
+    const singleAtRule = rule.get('singleAtRule');
+    let found;
 
-    // Get string of selectors
-    selectors.each(selector => {
-      strSel += '.' + selector.get('name');
-      if(compCls.indexOf(selector.get('name')) > -1)
+    // This will not render a rule if there is no its component
+    rule.get('selectors').each(selector => {
+      const name = selector.getFullName();
+      if (this.compCls.indexOf(name) >= 0 || this.ids.indexOf(name) >= 0) {
         found = 1;
+      }
     });
 
-    // With 'found' will skip rules which selectors are not found in
-    // canvas components.
-    if ((strSel && found) || selectorsAdd) {
-      strSel += state ? ':' + state : '';
-      strSel += selectorsAdd ? (strSel ? ', ' : '') + selectorsAdd : '';
-      var strStyle = '';
-
-      // Get string of style properties
-      if(ruleStyle && Object.keys(ruleStyle).length !== 0){
-        for(var prop2 in ruleStyle){
-          if(ruleStyle.hasOwnProperty(prop2))
-            strStyle += prop2 + ':' + ruleStyle[prop2] + ';';
-        }
-      }
-
-      if(strStyle)
-        result += strSel + '{' + strStyle + '}';
+    if ((selectorStrNoAdd && found) || selectorsAdd || singleAtRule) {
+      const block = rule.getDeclaration();
+      block && (result += block);
+    } else {
+      dump.push(rule);
     }
 
     return result;
-  },
-
+  }
 });

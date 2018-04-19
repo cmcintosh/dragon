@@ -1,7 +1,6 @@
 //import grapesjs from './../src';
 
 describe('Main', () => {
-
   describe('Startup', () => {
     it('Main object should be loaded', () => {
       expect(grapesjs).toExist();
@@ -9,6 +8,7 @@ describe('Main', () => {
   });
 
   const path = './specs/';
+  require(`${path}keymaps`);
   require(`${path}asset_manager`);
   require(`${path}block_manager`);
   require(`${path}code_manager`);
@@ -16,7 +16,6 @@ describe('Main', () => {
   require(`${path}css_composer`);
   require(`${path}device_manager`);
   require(`${path}dom_components`);
-  require(`${path}grapesjs`);
   require(`${path}modal`);
   require(`${path}panels`);
   require(`${path}parser`);
@@ -25,4 +24,5 @@ describe('Main', () => {
   require(`${path}storage_manager`);
   require(`${path}style_manager`);
   require(`${path}trait_manager`);
+  require(`${path}grapesjs`);
 });

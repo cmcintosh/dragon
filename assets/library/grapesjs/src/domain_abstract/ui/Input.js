@@ -1,21 +1,53 @@
-var Backbone = require('backbone');
+const $ = Backbone.$;
 
 module.exports = Backbone.View.extend({
-
   events: {
-    'change': 'handleChange',
+    change: 'handleChange'
   },
 
-  template: _.template(`<span class='<%= holderClass %>'></span>`),
+  template() {
+    return `<span class="${this.holderClass()}"></span>`;
+  },
 
-  initialize(opts) {
-    var opt = opts || {};
-    var ppfx = opt.ppfx || '';
-    this.target = opt.target || {};
-    this.inputClass = ppfx + 'field';
-    this.inputHolderClass = ppfx + 'input-holder';
+  inputClass() {
+    return `${this.ppfx}field`;
+  },
+
+  holderClass() {
+    return `${this.ppfx}input-holder`;
+  },
+
+  initialize(opts = {}) {
+    const ppfx = opts.ppfx || '';
+    this.opts = opts;
     this.ppfx = ppfx;
+    this.em = opts.target || {};
     this.listenTo(this.model, 'change:value', this.handleModelChange);
+  },
+
+  /**
+   * Fired when the element of the property is updated
+   */
+  elementUpdated() {
+    this.model.trigger('el:change');
+  },
+
+  /**
+   * Set value to the input element
+   * @param {string} value
+   */
+  setValue(value) {
+    const model = this.model;
+    let val = value || model.get('defaults');
+    const input = this.getInputEl();
+    input && (input.value = val);
+  },
+
+  /**
+   * Updates the view when the model is changed
+   * */
+  handleModelChange(model, value, opts) {
+    this.setValue(value, opts);
   },
 
   /**
@@ -23,33 +55,8 @@ module.exports = Backbone.View.extend({
    */
   handleChange(e) {
     e.stopPropagation();
-    this.setValue(this.getInputEl().value);
-  },
-
-  /**
-   * Set value to the model
-   * @param {string} value
-   * @param {Object} opts
-   */
-  setValue(value, opts) {
-    var opt = opts || {};
-    var model = this.model;
-    model.set({
-      value: value || model.get('defaults')
-    }, opt);
-
-    // Generally I get silent when I need to reflect data to view without
-    // reupdating the target
-    if(opt.silent) {
-      this.handleModelChange(model, value, opt);
-    }
-  },
-
-  /**
-   * Updates the view when the model is changed
-   * */
-  handleModelChange(model, value, opts) {
-    this.getInputEl().value = this.model.get('value');
+    this.model.set('value', this.getInputEl().value);
+    this.elementUpdated();
   },
 
   /**
@@ -57,25 +64,19 @@ module.exports = Backbone.View.extend({
    * @return {HTMLElement}
    */
   getInputEl() {
-    if(!this.inputEl) {
-      this.inputEl = $('<input>', {
-        type: 'text',
-        class: this.inputCls,
-        placeholder: this.model.get('defaults')
-      });
+    if (!this.inputEl) {
+      const plh = this.model.get('defaults');
+      this.inputEl = $(`<input type="text" placeholder="${plh}">`);
     }
+
     return this.inputEl.get(0);
   },
 
   render() {
-    var el = this.$el;
-    el.addClass(this.inputClass);
-    el.html(this.template({
-      holderClass: this.inputHolderClass,
-      ppfx: this.ppfx
-    }));
-    el.find('.'+ this.inputHolderClass).html(this.getInputEl());
+    const el = this.$el;
+    el.addClass(this.inputClass());
+    el.html(this.template());
+    el.find(`.${this.holderClass()}`).append(this.getInputEl());
     return this;
   }
-
 });

@@ -7,15 +7,20 @@ module.exports = {
 
   // Default wrapper configuration
   wrapper: {
-    style: {margin: 0},
     removable: false,
     copyable: false,
     draggable: false,
     components: [],
     traits: [],
-    stylable: ['background','background-color','background-image',
-      'background-repeat','background-attachment','background-position',
-      'background-size'],
+    stylable: [
+      'background',
+      'background-color',
+      'background-image',
+      'background-repeat',
+      'background-attachment',
+      'background-position',
+      'background-size'
+    ]
   },
 
   // Could be used for default components
@@ -33,7 +38,22 @@ module.exports = {
   storeWrapper: 0,
 
   // List of void elements
-  voidElements: ['area', 'base', 'br', 'col', 'embed', 'hr', 'img',
-    'input', 'keygen', 'link', 'menuitem', 'meta', 'param', 'source',
-    'track', 'wbr'],
+  voidElements: [
+    'area',
+    'base',
+    'br',
+    'col',
+    'embed',
+    'hr',
+    'img',
+    'input',
+    'keygen',
+    'link',
+    'menuitem',
+    'meta',
+    'param',
+    'source',
+    'track',
+    'wbr'
+  ]
 };

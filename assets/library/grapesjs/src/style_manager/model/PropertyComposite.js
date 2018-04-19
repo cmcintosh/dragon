@@ -1,8 +1,8 @@
 const Property = require('./Property');
 
 module.exports = Property.extend({
-
-  defaults: Object.assign({}, Property.prototype.defaults, {
+  defaults: {
+    ...Property.prototype.defaults,
     // 'background' is a good example where to make a difference
     // between detached and not
     //
@@ -16,12 +16,42 @@ module.exports = Property.extend({
 
     // Array of sub properties
     properties: [],
-  }),
+
+    // Separator between properties
+    separator: ' '
+  },
 
   init() {
     const properties = this.get('properties') || [];
     const Properties = require('./Properties');
     this.set('properties', new Properties(properties));
+    this.listenTo(this, 'change:value', this.updateValues);
+  },
+
+  /**
+   * Clear the value
+   * @return {this}
+   */
+  clearValue(opts = {}) {
+    this.get('properties').each(property => property.clearValue());
+    return Property.prototype.clearValue.apply(this, arguments);
+  },
+
+  /**
+   * Update property values
+   */
+  updateValues() {
+    const values = this.getFullValue().split(this.get('separator'));
+    this.get('properties').each((property, i) => {
+      const len = values.length;
+      // Try to get value from a shorthand:
+      // 11px -> 11px 11px 11px 11xp
+      // 11px 22px -> 11px 22px 11px 22xp
+      const value =
+        values[i] || values[i % len + (len != 1 && len % 2 ? 1 : 0)];
+      // There some issue with UndoManager
+      //property.setValue(value, 0, {fromParent: 1});
+    });
   },
 
   /**
@@ -38,7 +68,7 @@ module.exports = Property.extend({
 
     value = '';
     const properties = this.get('properties');
-    properties.each((prop, index) => value += `${prop.getDefaultValue()} `);
+    properties.each((prop, index) => (value += `${prop.getDefaultValue()} `));
     return value.trim();
   },
 
@@ -47,9 +77,6 @@ module.exports = Property.extend({
       return '';
     }
 
-    let result = '';
-    this.get('properties').each(prop => result += `${prop.getFullValue()} `);
-    return result.trim();
-  },
-
+    return this.get('properties').getFullValue();
+  }
 });

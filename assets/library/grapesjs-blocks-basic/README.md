@@ -5,16 +5,14 @@ This plugin contains some basic blocks for the GrapesJS editor
 [Demo](http://grapesjs.com/demo.html)
 <br/>
 
-Components:
-`column1`
-`column2`
-`column3`
-`column3-7`
-`text`
-`link`
-`image`
-`video`
-`map`
+
+
+
+
+## Summary
+
+* Plugin name: `gjs-blocks-basic`
+* Blocks: `column1`, `column2`, `column3`, `column3-7`, `text`, `link`, `image`, `video`, `map`
 
 
 
@@ -22,17 +20,22 @@ Components:
 
 ## Options
 
-* `blocks` Which blocks to add, default: `['column1', 'column2', 'column3', 'column3-7', 'text', 'link', 'image', 'video', 'map']` (all),
-* `addBasicStyle` Add basic CSS, default: `true`,
-* `labelColumn1` 1 Column label, default: `1 Column`,
-* `labelColumn2` 2 Column label, default: `2 Columns`,
-* `labelColumn3` 2 Column label, default: `3 Columns`,
-* `labelColumn37` 3/7 Column label, default: `2 Columns 3/7`,
-* `labelText` Text label, default: `Text`,
-* `labelLink` Link label, default: `Link`,
-* `labelImage` Image label, default: `Image`,
-* `labelVideo` Video label, default: `Video`,
-* `labelMap` Map label, default: `Map`,
+|Option|Description|Default|
+|-|-|-
+|`blocks`|Which blocks to add|`['column1', 'column2', 'column3', 'column3-7', 'text', 'link', 'image', 'video', 'map']` (all)|
+|`category`|Category name|`Basic`|
+|`flexGrid`|Make use of flexbox for the grid|`false`|
+|`stylePrefix`|Classes prefix|`''`|
+|`addBasicStyle`|Use basic CSS for blocks|`true`|
+|`labelColumn1`|1 Column label|`1 Column`|
+|`labelColumn2`|2 Columns label|`2 Columns`|
+|`labelColumn3`|3 Columns label|`3 Columns`|
+|`labelColumn37`|3/7 Columns label|`2 Columns 3/7`|
+|`labelText`|Text label|`Text`|
+|`labelLink`|Link label|`Link`|
+|`labelImage`|Image label|`Image`|
+|`labelVideo`|Video label|`Video`|
+|`labelMap`|Map label|`Map`|
 
 
 
@@ -40,7 +43,7 @@ Components:
 
 ## Download
 
-* `npm i grapesjs-blocks-basic` or `yarn add grapesjs-blocks-basic`
+* `npm i grapesjs-blocks-basic`
 
 
 
@@ -49,8 +52,8 @@ Components:
 ## Usage
 
 ```html
-<link href="path/to/grapes.min.css" rel="stylesheet"/>
-<script src="path/to/grapes.min.js"></script>
+<link href="https://unpkg.com/grapesjs/dist/css/grapes.min.css" rel="stylesheet"/>
+<script src="https://unpkg.com/grapesjs"></script>
 <script src="path/to/grapesjs-blocks-basic.min.js"></script>
 
 <div id="gjs"></div>
@@ -86,16 +89,16 @@ Install it
 $ npm i
 ```
 
+The plugin relies on GrapesJS via `peerDependencies` so you have to install it manually (without adding it to package.json)
+
+```sh
+$ npm i grapesjs --no-save
+```
+
 Start the dev server
 
 ```sh
 $ npm start
-```
-
-Build before the commit. This will also increase the patch level version of the package
-
-```sh
-$ npm run build
 ```
 
 

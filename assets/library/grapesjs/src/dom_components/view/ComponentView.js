@@ -1,8 +1,8 @@
-var Backbone = require('backbone');
-var ComponentsView = require('./ComponentsView');
+import { isArray, isEmpty } from 'underscore';
+
+const ComponentsView = require('./ComponentsView');
 
 module.exports = Backbone.View.extend({
-
   className() {
     return this.getClasses();
   },
@@ -11,32 +11,38 @@ module.exports = Backbone.View.extend({
     return this.model.get('tagName');
   },
 
-  initialize(opt) {
-    var model = this.model;
-    this.opts = opt || {};
-    this.config = this.opts.config || {};
-    this.em = this.config.em || '';
-    this.pfx = this.config.stylePrefix || '';
-    this.ppfx = this.config.pStylePrefix || '';
-    this.components = model.get('components');
-    this.attr = model.get("attributes");
+  initialize(opt = {}) {
+    const model = this.model;
+    const config = opt.config || {};
+    this.opts = opt;
+    this.config = config;
+    this.em = config.em || '';
+    this.pfx = config.stylePrefix || '';
+    this.ppfx = config.pStylePrefix || '';
+    this.attr = model.get('attributes');
     this.classe = this.attr.class || [];
+    const $el = this.$el;
+    const classes = model.get('classes');
     this.listenTo(model, 'destroy remove', this.remove);
     this.listenTo(model, 'change:style', this.updateStyle);
     this.listenTo(model, 'change:attributes', this.updateAttributes);
+    this.listenTo(model, 'change:highlightable', this.updateHighlight);
     this.listenTo(model, 'change:status', this.updateStatus);
     this.listenTo(model, 'change:state', this.updateState);
     this.listenTo(model, 'change:script', this.render);
     this.listenTo(model, 'change', this.handleChange);
-    this.listenTo(model.get('classes'), 'add remove change', this.updateClasses);
-    this.$el.data('model', model);
+    this.listenTo(classes, 'add remove change', this.updateClasses);
+    $el.data('model', model);
+    $el.data('collection', model.get('components'));
     model.view = this;
-    this.$el.data("collection", this.components);
-
-    if(model.get('classes').length)
-      this.importClasses();
-
+    classes.length && this.importClasses();
     this.init();
+  },
+
+  remove() {
+    Backbone.View.prototype.remove.apply(this);
+    const children = this.childrenView;
+    children && children.stopListening();
   },
 
   /**
@@ -49,14 +55,11 @@ module.exports = Backbone.View.extend({
    * @private
    */
   handleChange() {
-    var em = this.em;
-    if(em) {
-      var model = this.model;
-      em.trigger('component:update', model);
+    const model = this.model;
+    model.emitUpdate();
 
-      for(var prop in model.changed) {
-        em.trigger('component:update:' + prop, model);
-      }
+    for (let prop in model.changed) {
+      model.emitUpdate(prop);
     }
   },
 
@@ -67,9 +70,9 @@ module.exports = Backbone.View.extend({
   importClasses() {
     var clm = this.config.em.get('SelectorManager');
 
-    if(clm){
+    if (clm) {
       this.model.get('classes').each(m => {
-          clm.add(m.get('name'));
+        clm.add(m.get('name'));
       });
     }
   },
@@ -83,9 +86,9 @@ module.exports = Backbone.View.extend({
     var cl = 'hc-state';
     var state = this.model.get('state');
 
-    if(state){
+    if (state) {
       this.$el.addClass(cl);
-    }else{
+    } else {
       this.$el.removeClass(cl);
     }
   },
@@ -103,21 +106,23 @@ module.exports = Backbone.View.extend({
     var selectedCls = pfx + 'selected';
     var selectedParentCls = selectedCls + '-parent';
     var freezedCls = `${ppfx}freezed`;
+    this.$el.removeClass(`${selectedCls} ${selectedParentCls} ${freezedCls}`);
     var actualCls = el.getAttribute('class') || '';
     var cls = '';
 
     switch (status) {
-        case 'selected':
-          cls = `${actualCls} ${selectedCls}`;
-          break;
-        case 'selected-parent':
-          cls = `${actualCls} ${selectedParentCls}`;
-          break;
-        case 'freezed':
-          cls = `${actualCls} ${freezedCls}`;
-          break;
-        default:
-          this.$el.removeClass(`${selectedCls} ${selectedParentCls} ${freezedCls}`);
+      case 'selected':
+        cls = `${actualCls} ${selectedCls}`;
+        break;
+      case 'selected-parent':
+        cls = `${actualCls} ${selectedParentCls}`;
+        break;
+      case 'freezed':
+        cls = `${actualCls} ${freezedCls}`;
+        break;
+      case 'freezed-selected':
+        cls = `${actualCls} ${freezedCls} ${selectedCls}`;
+        break;
     }
 
     cls = cls.trim();
@@ -128,48 +133,12 @@ module.exports = Backbone.View.extend({
   },
 
   /**
-   * Get classes from attributes.
-   * This method is called before initialize
-   *
-   * @return  {Array}|null
+   * Update highlight attribute
    * @private
    * */
-  getClasses() {
-    var attr = this.model.get("attributes"),
-      classes  = attr['class'] || [];
-    if(classes.length){
-      return classes.join(" ");
-    }else
-      return null;
-  },
-
-  /**
-   * Update attributes
-   * @private
-   * */
-  updateAttributes() {
-    var model = this.model;
-    var attributes = {},
-      attr = model.get("attributes");
-    for(var key in attr) {
-        if (key && attr.hasOwnProperty(key)) {
-          attributes[key] = attr[key];
-        }
-    }
-
-    // Update src
-    if(model.get('src'))
-      attributes.src = model.get('src');
-
-    if(model.get('highlightable'))
-      attributes['data-highlightable'] = 1;
-
-    var styleStr = this.getStyleString();
-
-    if(styleStr)
-      attributes.style = styleStr;
-
-    this.$el.attr(attributes);
+  updateHighlight() {
+    const hl = this.model.get('highlightable');
+    this.setAttribute('data-highlightable', hl ? 1 : '');
   },
 
   /**
@@ -177,7 +146,80 @@ module.exports = Backbone.View.extend({
    * @private
    * */
   updateStyle() {
-    this.$el.attr('style', this.getStyleString());
+    const em = this.em;
+    const model = this.model;
+
+    if (em && em.get('avoidInlineStyle')) {
+      this.el.id = model.getId();
+      const style = model.getStyle();
+      !isEmpty(style) && model.setStyle(style);
+    } else {
+      this.setAttribute('style', model.styleToString());
+    }
+  },
+
+  /**
+   * Update classe attribute
+   * @private
+   * */
+  updateClasses() {
+    const str = this.model
+      .get('classes')
+      .pluck('name')
+      .join(' ');
+    this.setAttribute('class', str);
+
+    // Regenerate status class
+    this.updateStatus();
+  },
+
+  /**
+   * Update single attribute
+   * @param {[type]} name  [description]
+   * @param {[type]} value [description]
+   */
+  setAttribute(name, value) {
+    const el = this.$el;
+    value ? el.attr(name, value) : el.removeAttr(name);
+  },
+
+  /**
+   * Get classes from attributes.
+   * This method is called before initialize
+   *
+   * @return  {Array}|null
+   * @private
+   * */
+  getClasses() {
+    var attr = this.model.get('attributes'),
+      classes = attr['class'] || [];
+    classes = isArray(classes) ? classes : [classes];
+
+    if (classes.length) {
+      return classes.join(' ');
+    } else {
+      return null;
+    }
+  },
+
+  /**
+   * Update attributes
+   * @private
+   * */
+  updateAttributes() {
+    const model = this.model;
+    const attrs = {};
+    const attr = model.get('attributes');
+    const src = model.get('src');
+
+    for (let key in attr) {
+      attrs[key] = attr[key];
+    }
+
+    src && (attrs.src = src);
+    this.$el.attr(attrs);
+    this.updateHighlight();
+    this.updateStyle();
   },
 
   /**
@@ -186,52 +228,6 @@ module.exports = Backbone.View.extend({
    * */
   updateContent() {
     this.getChildrenContainer().innerHTML = this.model.get('content');
-  },
-
-  /**
-   * Return style string
-   * @return  {string}
-   * @private
-   * */
-  getStyleString() {
-    var style  = '';
-    this.style = this.model.get('style');
-    for(var key in this.style) {
-        if(this.style.hasOwnProperty(key))
-          style += key + ':' + this.style[key] + ';';
-    }
-
-    return style;
-  },
-
-  /**
-   * Update classe attribute
-   * @private
-   * */
-  updateClasses() {
-    var str = '';
-
-    this.model.get('classes').each(model => {
-      str += model.get('name') + ' ';
-    });
-    str = str.trim();
-
-    if(str)
-      this.$el.attr('class', str);
-    else
-      this.$el.removeAttr('class');
-
-    // Regenerate status class
-    this.updateStatus();
-  },
-
-  /**
-   * Reply to event call
-   * @param object Event that generated the request
-   * @private
-   * */
-  eventCall(event) {
-    event.viewResponse = this;
   },
 
   /**
@@ -253,7 +249,7 @@ module.exports = Backbone.View.extend({
     }
 
     var em = this.em;
-    if(em) {
+    if (em) {
       var canvas = em.get('Canvas');
       canvas.getCanvasView().updateScript(this);
     }
@@ -300,17 +296,18 @@ module.exports = Backbone.View.extend({
    * @private
    */
   renderChildren() {
-    var view = new ComponentsView({
+    const container = this.getChildrenContainer();
+    const view = new ComponentsView({
       collection: this.model.get('components'),
       config: this.config,
-      componentTypes: this.opts.componentTypes,
+      componentTypes: this.opts.componentTypes
     });
 
-    var container = this.getChildrenContainer();
-    var childNodes = view.render($(container)).el.childNodes;
-    childNodes = Array.prototype.slice.call(childNodes);
+    view.render(container);
+    this.childrenView = view;
+    const childNodes = Array.prototype.slice.call(view.el.childNodes);
 
-    for (var i = 0, len = childNodes.length ; i < len; i++) {
+    for (var i = 0, len = childNodes.length; i < len; i++) {
       container.appendChild(childNodes.shift());
     }
 
@@ -339,11 +336,12 @@ module.exports = Backbone.View.extend({
 
   render() {
     this.renderAttributes();
-    var model = this.model;
     this.updateContent();
     this.renderChildren();
     this.updateScript();
+    this.onRender();
     return this;
   },
 
+  onRender() {}
 });

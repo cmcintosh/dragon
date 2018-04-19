@@ -1,36 +1,20 @@
 /**
- * - [isAutosave](#isautosave)
- * - [setAutosave](#setautosave)
- * - [getStepsBeforeSave](#getstepsbeforesave)
- * - [setStepsBeforeSave](#setstepsbeforesave)
- * - [getStorages](#getstorages)
- * - [getCurrent](#getcurrent)
- * - [setCurrent](#setcurrent)
- * - [add](#add)
- * - [get](#get)
- * - [store](#store)
- * - [load](#load)
- *
- *
  * Before using methods you should get first the module from the editor instance, in this way:
  *
  * ```js
  * var storageManager = editor.StorageManager;
  * ```
- *
- * @module StorageManager
  */
 module.exports = () => {
   var c = {},
-  defaults = require('./config/config'),
-  LocalStorage = require('./model/LocalStorage'),
-  RemoteStorage = require('./model/RemoteStorage');
+    defaults = require('./config/config'),
+    LocalStorage = require('./model/LocalStorage'),
+    RemoteStorage = require('./model/RemoteStorage');
 
   var storages = {};
   var defaultStorages = {};
 
   return {
-
     /**
      * Name of the module
      * @type {String}
@@ -47,6 +31,7 @@ module.exports = () => {
      * @param {number} [config.stepsBeforeSave=1] If autosave enabled, indicates how many steps/changes are necessary
      * before autosave is triggered
      * @param {string} [config.type='local'] Default storage type. Available: 'local' | 'remote' | ''(do not store)
+     * @private
      * @example
      * ...
      * {
@@ -57,16 +42,24 @@ module.exports = () => {
      */
     init(config) {
       c = config || {};
-      for (var name in defaults){
-        if (!(name in c))
-          c[name] = defaults[name];
+
+      for (var name in defaults) {
+        if (!(name in c)) c[name] = defaults[name];
       }
 
-      defaultStorages.remote  = new RemoteStorage(c);
+      defaultStorages.remote = new RemoteStorage(c);
       defaultStorages.local = new LocalStorage(c);
       c.currentStorage = c.type;
       this.loadDefaultProviders().setCurrent(c.type);
       return this;
+    },
+
+    /**
+     * Get configuration object
+     * @return {Object}
+     * */
+    getConfig() {
+      return c;
     },
 
     /**
@@ -101,7 +94,7 @@ module.exports = () => {
      * @return {this}
      * */
     setStepsBeforeSave(v) {
-      c.stepsBeforeSave  = v;
+      c.stepsBeforeSave = v;
       return this;
     },
 
@@ -114,17 +107,18 @@ module.exports = () => {
      * @return {this}
      * @example
      * storageManager.add('local2', {
-     *   load: function(keys){
+     *   load: function(keys, clb) {
      *     var res = {};
      *     for (var i = 0, len = keys.length; i < len; i++){
      *       var v = localStorage.getItem(keys[i]);
      *       if(v) res[keys[i]] = v;
      *     }
-     *     return res;
+     *     clb(res); // might be called inside some async method
      *   },
-     *   store: function(data){
+     *   store: function(data, clb) {
      *     for(var key in data)
      *       localStorage.setItem(key, data[key]);
+     *     clb(); // might be called inside some async method
      *   }
      * });
      * */
@@ -180,8 +174,7 @@ module.exports = () => {
       var st = this.get(this.getCurrent());
       var dataF = {};
 
-      for(var key in data)
-        dataF[c.id + key] = data[key];
+      for (var key in data) dataF[c.id + key] = data[key];
 
       return st ? st.store(dataF, clb) : null;
     },
@@ -203,22 +196,25 @@ module.exports = () => {
       var keysF = [];
       var result = {};
 
-      if(typeof keys === 'string')
-        keys = [keys];
+      if (typeof keys === 'string') keys = [keys];
 
       for (var i = 0, len = keys.length; i < len; i++)
         keysF.push(c.id + keys[i]);
 
-      st && st.load(keysF, res => {
-        // Restore keys name
-        for (var itemKey in res) {
+      if (st) {
+        st.load(keysF, res => {
+          // Restore keys name
           var reg = new RegExp('^' + c.id + '');
-          var itemKeyR = itemKey.replace(reg, '');
-          result[itemKeyR] = res[itemKey];
-        }
+          for (var itemKey in res) {
+            var itemKeyR = itemKey.replace(reg, '');
+            result[itemKeyR] = res[itemKey];
+          }
 
+          clb && clb(result);
+        });
+      } else {
         clb && clb(result);
-      });
+      }
     },
 
     /**
@@ -227,20 +223,26 @@ module.exports = () => {
      * @private
      * */
     loadDefaultProviders() {
-      for (var id in defaultStorages)
-        this.add(id, defaultStorages[id]);
+      for (var id in defaultStorages) this.add(id, defaultStorages[id]);
       return this;
     },
 
     /**
-     * Get configuration object
-     * @return {Object}
-     * @private
+     * Get current storage
+     * @return {Storage}
      * */
-    getConfig() {
-      return c;
+    getCurrentStorage() {
+      return this.get(this.getCurrent());
     },
 
+    /**
+     * Check if autoload is possible
+     * @return {Boolean}
+     * @private
+     * */
+    canAutoload() {
+      const storage = this.getCurrentStorage();
+      return storage && this.getConfig().autoload;
+    }
   };
-
 };

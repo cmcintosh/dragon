@@ -1,16 +1,16 @@
+import 'whatwg-fetch';
+
 const LocalStorage = require('storage_manager/model/LocalStorage');
 const RemoteStorage = require('storage_manager/model/RemoteStorage');
 
 module.exports = {
   run() {
-
     describe('LocalStorage', () => {
-
       var obj;
       var itemName = 'testItem';
       var data = {
-        'item1': 'value1',
-        'item2': 'value2',
+        item1: 'value1',
+        item2: 'value2'
       };
 
       beforeEach(() => {
@@ -29,13 +29,13 @@ module.exports = {
 
       it('Store, update and load items', () => {
         obj.store(data);
-        obj.store({item3: 'value3'});
-        obj.store({item2: 'value22'});
+        obj.store({ item3: 'value3' });
+        obj.store({ item2: 'value22' });
         var result = obj.load(['item1', 'item2', 'item3']);
         expect(result).toEqual({
-          'item1': 'value1',
-          'item2': 'value22',
-          'item3': 'value3',
+          item1: 'value1',
+          item2: 'value22',
+          item3: 'value3'
         });
       });
 
@@ -45,11 +45,9 @@ module.exports = {
         obj.remove(items);
         expect(obj.load(items)).toEqual({});
       });
-
     });
 
     describe('RemoteStorage', () => {
-
       var obj;
       var itemName = 'testItem';
       var endpointStore = 'testStoreEndpoint';
@@ -57,60 +55,47 @@ module.exports = {
       var params = { test: 'testValue' };
       var storageOptions;
       var data;
+      var mockResponse = (body = {}) => {
+        return new window.Response(JSON.stringify(body), {
+          status: 200,
+          headers: { 'Content-type': 'application/json' }
+        });
+      };
 
       beforeEach(() => {
         data = {
-          'item1': 'value1',
-          'item2': 'value2',
+          item1: 'value1',
+          item2: 'value2'
         };
         storageOptions = {
-            urlStore: endpointStore,
-            urlLoad: endpointLoad,
-            params,
+          urlStore: endpointStore,
+          urlLoad: endpointLoad,
+          params
         };
         obj = new RemoteStorage(storageOptions);
+        sinon
+          .stub(obj, 'fetch')
+          .returns(Promise.resolve(mockResponse({ data: 1 })));
       });
 
       afterEach(() => {
-        $.ajax.restore();
+        obj.fetch.restore();
         obj = null;
       });
 
-      // Stubbing will not return the original object so
-      // .always will not work
-      it.skip('Store data', () => {
-        sinon.stub($, "ajax");
-
-        for(var k in params)
-          data[k] = params[k];
-
+      it('Store data', () => {
         obj.store(data);
-        $.ajax.calledWithMatch({
-          url: endpointStore,
-          data,
-        }).should.equal(true);
+        const callResult = obj.fetch;
+        expect(callResult.called).toEqual(true);
+        expect(callResult.firstCall.args[0]).toEqual(endpointStore);
       });
 
       it('Load data', () => {
-        sinon.stub($, "ajax").returns({
-          done() {}
-        });
-        var dt = {};
-        var keys = ['item1', 'item2'];
-        obj.load(keys);
-        dt.keys = keys;
-
-        for(var k in params)
-          dt[k] = params[k];
-
-        expect($.ajax.calledWithMatch({
-          url: endpointLoad,
-          data: dt
-        })).toEqual(true);
+        obj.load(['item1', 'item2']);
+        const callResult = obj.fetch;
+        expect(callResult.called).toEqual(true);
+        expect(callResult.firstCall.args[0]).toEqual(endpointLoad);
       });
-
     });
-
   }
-
 };

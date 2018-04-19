@@ -4,31 +4,22 @@ var Assets = require('asset_manager/model/Assets');
 
 module.exports = {
   run() {
-
     describe('AssetView', () => {
-
-      before(function () {
-        this.$fixtures   = $("#fixtures");
-        this.$fixture   = $('<div class="asset-fixture"></div>');
-      });
-
-      beforeEach(function () {
-        var coll   = new Assets();
-        var model = coll.add({src: 'test'});
+      beforeEach(function() {
+        var coll = new Assets();
+        var model = coll.add({ src: 'test' });
         this.view = new AssetView({
-          config : {},
+          config: {},
           model
         });
-        this.$fixture.empty().appendTo(this.$fixtures);
-        this.$fixture.html(this.view.render().el);
+        document.body.innerHTML = '<div id="fixtures"></div>';
+        document.body
+          .querySelector('#fixtures')
+          .appendChild(this.view.render().el);
       });
 
-      afterEach(function () {
+      afterEach(function() {
         this.view.remove();
-      });
-
-      after(function () {
-        this.$fixture.remove();
       });
 
       it('Object exists', () => {
@@ -38,8 +29,6 @@ module.exports = {
       it('Has correct prefix', function() {
         expect(this.view.pfx).toEqual('');
       });
-
     });
-
   }
-}
+};

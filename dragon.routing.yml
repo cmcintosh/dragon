@@ -6,37 +6,37 @@ dragon.admin:
   requirements:
     _permission: 'access dragon'
 
-# Saves data as a config entity until needed.
-dragon.site_builder.save:
-  path: '/js/grapesjs/save'
+dragon.assets:
+  path: '/dragon/assets'
   defaults:
-    _controller: '\Drupal\dragon\Controller\SiteBuilder::save'
+    _controller: '\Drupal\dragon\Controller\DragonInfoController::assets'
   requirements:
     _permission: 'access dragon'
-  methods: [ POST ]
 
-# Saves data as a config entity until needed.
-dragon.site_builder.load:
-  path: '/js/grapesjs/load'
+dragon.image_upload:
+  path: '/dragon/image/upload'
   defaults:
-    _controller: '\Drupal\dragon\Controller\SiteBuilder::load'
+    _controller: '\Drupal\dragon\Controller\DragonInfoController::image_upload'
   requirements:
     _permission: 'access dragon'
-  methods: [ POST ]
 
-# Deletes a template from the system.
-dragon.site_builder.delete:
-  path: '/js/grapesjs/delete'
+dragon.image_alter:
+  path: '/dragon/image/alter'
   defaults:
-    _controller: '\Drupal\dragon\Controller\SiteBuilder::deleteGrapesJS'
+    _controller: '\Drupal\dragon\Controller\DragonInfoController::aviary_save'
   requirements:
     _permission: 'access dragon'
-  methods: [ POST ]
 
-dragon.site_builder.generate:
-  path: '/js/grapesjs/generate'
+dragon.blocks:
+  path: '/dragon/blocks'
   defaults:
-    _controller: '\Drupal\dragon\Controller\SiteBuilder::generate'
+    _controller: '\Drupal\dragon\Controller\DragonInfoController::blocks'
   requirements:
     _permission: 'access dragon'
-  methods: [ POST ]
+
+dragon.entities:
+  path: '/dragon/entities'
+  defaults:
+    _controller: '\Drupal\dragon\Controller\DragonInfoController::entities'
+  requirements:
+    _permission: 'access dragon'

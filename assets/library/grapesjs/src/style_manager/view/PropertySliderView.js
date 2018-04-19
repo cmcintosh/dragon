@@ -1,11 +1,13 @@
-const InputNumber = require('domain_abstract/ui/InputNumber');
 const Property = require('./PropertyIntegerView');
 
 module.exports = Property.extend({
-
-  events: {
-    'change': 'inputValueChanged',
-    'input': 'inputValueChangedSoft',
+  events() {
+    return {
+      ...Property.prototype.events,
+      'change [type=range]': 'inputValueChanged',
+      'input [type=range]': 'inputValueChangedSoft',
+      change: ''
+    };
   },
 
   templateInput(model) {
@@ -33,26 +35,25 @@ module.exports = Property.extend({
     const step = model.get('step');
     this.getInputEl().value = this.getSliderEl().value;
     const value = this.getInputValue() - step;
-    model.set('value', value, {avoidStore: 1}).set('value', value + step);
+    model.set('value', value, { avoidStore: 1 }).set('value', value + step);
     this.elementUpdated();
   },
 
   inputValueChangedSoft() {
     this.getInputEl().value = this.getSliderEl().value;
-    this.model.set('value', this.getInputValue(), {avoidStore: 1});
+    this.model.set('value', this.getInputValue(), { avoidStore: 1 });
     this.elementUpdated();
   },
 
   setValue(value) {
     this.getSliderEl().value = value;
-    this.inputInst.setValue(value, {silent: 1});
+    this.inputInst.setValue(value, { silent: 1 });
   },
 
   onRender() {
     Property.prototype.onRender.apply(this, arguments);
-    const model = this.model;
 
-    if (!model.get('showInput')) {
+    if (!this.model.get('showInput')) {
       this.inputInst.el.style.display = 'none';
     }
   }

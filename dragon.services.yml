@@ -1,4 +1,0 @@
-services:
-  plugin.manager.grapejs_plugin:
-    class: Drupal\dragon\GrapesJSPluginManager
-    parent: default_plugin_manager

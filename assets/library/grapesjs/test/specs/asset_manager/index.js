@@ -3,9 +3,7 @@ var AssetManager = require('asset_manager');
 var FileUploader = require('./view/FileUploader');
 
 describe('Asset Manager', () => {
-
   describe('Main', () => {
-
     var obj;
     var imgObj;
 
@@ -17,18 +15,20 @@ describe('Asset Manager', () => {
       },
       load(keys) {
         return storage;
-      },
+      }
     };
 
     beforeEach(() => {
+      document.body.innerHTML = '<div id="asset-c"></div>';
       imgObj = {
         type: 'image',
         src: 'path/to/image',
         width: 101,
-        height: 102,
+        height: 102
       };
       obj = new AssetManager();
       obj.init();
+      document.body.querySelector('#asset-c').appendChild(obj.render());
     });
 
     afterEach(() => {
@@ -84,18 +84,19 @@ describe('Asset Manager', () => {
     });
 
     describe('With storage', () => {
-
       var storageManager;
 
       beforeEach(() => {
+        document.body.innerHTML = '<div id="asset-c"></div>';
         storageManager = new StorageManager().init({
           autoload: 0,
           type: storageId
-        })
+        });
         obj = new AssetManager().init({
-          stm: storageManager,
+          stm: storageManager
         });
         storageManager.add(storageId, storageMock);
+        document.body.querySelector('#asset-c').appendChild(obj.render());
       });
 
       afterEach(() => {
@@ -106,15 +107,13 @@ describe('Asset Manager', () => {
         obj.add(imgObj);
         obj.store();
         obj.remove(imgObj.src);
-        obj.load({assets: storage['gjs-assets']});
+        obj.load({ assets: storage['gjs-assets'] });
         var asset = obj.get(imgObj.src);
         expect(asset.get('width')).toEqual(imgObj.width);
         expect(asset.get('height')).toEqual(imgObj.height);
         expect(asset.get('type')).toEqual('image');
       });
-
     });
-
   });
 
   require('./model/Asset').run();

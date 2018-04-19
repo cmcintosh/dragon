@@ -6,7 +6,6 @@ const Panel = require('panels/model/Panel');
 module.exports = {
   run() {
     describe('Button', () => {
-
       var obj;
 
       beforeEach(() => {
@@ -33,6 +32,9 @@ module.exports = {
         expect(obj.get('buttons').length).toEqual(1);
       });
 
+      it('Has a disable attribute with default value as false', () => {
+        expect(obj.get('disable')).toEqual(false);
+      });
     });
 
     describe('Buttons', () => {
@@ -70,6 +72,23 @@ module.exports = {
         expect(obj.at(0).get('active')).toEqual(true);
       });
 
+      it('Disable all buttons', () => {
+        obj.add({ disable: false });
+        obj.disableAllButtons();
+        expect(obj.at(0).get('disable')).toEqual(true);
+      });
+
+      it('Disables buttons with context', () => {
+        obj.add({ disable: false, context: 'someContext' });
+        obj.disableAllButtons('someContext');
+        expect(obj.at(0).get('disable')).toEqual(true);
+      });
+
+      it('Disables except one', () => {
+        var btn = obj.add({ disable: false });
+        obj.disableAllButtonsExceptOne(btn);
+        expect(obj.at(0).get('disable')).toEqual(false);
+      });
     });
 
     describe('Panel', () => {
@@ -99,7 +118,6 @@ module.exports = {
         expect(obj.get('buttons') instanceof Buttons).toEqual(true);
         expect(obj.get('buttons').length).toEqual(1);
       });
-
     });
 
     describe('Panels', () => {
@@ -112,8 +130,6 @@ module.exports = {
       afterEach(() => {
         obj = null;
       });
-
     });
-
   }
 };

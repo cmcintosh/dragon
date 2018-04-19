@@ -1,16 +1,17 @@
-var Backbone = require('backbone');
-var SelectComponent = require('./SelectComponent');
-var SelectPosition = require('./SelectPosition');
+import { on, off } from 'utils/mixins';
+
+const SelectComponent = require('./SelectComponent');
+const SelectPosition = require('./SelectPosition');
+const $ = Backbone.$;
 
 module.exports = _.extend({}, SelectPosition, SelectComponent, {
-
   init(o) {
     SelectComponent.init.apply(this, arguments);
-    _.bindAll(this, 'initSorter','rollback', 'onEndMove');
+    _.bindAll(this, 'initSorter', 'rollback', 'onEndMove');
     this.opt = o;
-    this.hoverClass  = this.ppfx + 'highlighter-warning';
-    this.badgeClass  = this.ppfx + 'badge-warning';
-    this.noSelClass  = this.ppfx + 'no-select';
+    this.hoverClass = this.ppfx + 'highlighter-warning';
+    this.badgeClass = this.ppfx + 'badge-warning';
+    this.noSelClass = this.ppfx + 'no-select';
   },
 
   enable(...args) {
@@ -18,7 +19,7 @@ module.exports = _.extend({}, SelectPosition, SelectComponent, {
     this.getBadgeEl().addClass(this.badgeClass);
     this.getHighlighterEl().addClass(this.hoverClass);
     var wp = this.$wrapper;
-    wp.css('cursor','move');
+    wp.css('cursor', 'move');
     wp.on('mousedown', this.initSorter);
 
     // Avoid strange moving behavior
@@ -39,8 +40,7 @@ module.exports = _.extend({}, SelectPosition, SelectComponent, {
   initSorter(e) {
     var el = $(e.target).data('model');
     var drag = el.get('draggable');
-    if(!drag)
-      return;
+    if (!drag) return;
 
     // Avoid badge showing on move
     this.cacheEl = null;
@@ -49,7 +49,7 @@ module.exports = _.extend({}, SelectPosition, SelectComponent, {
     this.sorter.onEndMove = this.onEndMove.bind(this);
     this.stopSelectComponent();
     this.$wrapper.off('mousedown', this.initSorter);
-    this.getContentWindow().on('keydown', this.rollback);
+    on(this.getContentWindow(), 'keydown', this.rollback);
   },
 
   /**
@@ -59,8 +59,7 @@ module.exports = _.extend({}, SelectPosition, SelectComponent, {
    */
   initSorterFromModel(model) {
     var drag = model.get('draggable');
-    if(!drag)
-      return;
+    if (!drag) return;
     // Avoid badge showing on move
     this.cacheEl = null;
     var el = model.view.el;
@@ -77,11 +76,11 @@ module.exports = _.extend({}, SelectPosition, SelectComponent, {
     */
 
     this.stopSelectComponent();
-    this.getContentWindow().on('keydown', this.rollback);
+    on(this.getContentWindow(), 'keydown', this.rollback);
   },
 
   onEndMoveFromModel() {
-    this.getContentWindow().off('keydown', this.rollback);
+    off(this.getContentWindow(), 'keydown', this.rollback);
   },
 
   /**
@@ -90,7 +89,7 @@ module.exports = _.extend({}, SelectPosition, SelectComponent, {
    */
   onEndMove() {
     this.enable();
-    this.getContentWindow().off('keydown', this.rollback);
+    off(this.getContentWindow(), 'keydown', this.rollback);
   },
 
   /**
@@ -109,7 +108,7 @@ module.exports = _.extend({}, SelectPosition, SelectComponent, {
    * */
   rollback(e, force) {
     var key = e.which || e.keyCode;
-    if(key == this.opt.ESCAPE_KEY || force){
+    if (key == this.opt.ESCAPE_KEY || force) {
       this.sorter.moved = false;
       this.sorter.endMove();
     }
@@ -122,8 +121,7 @@ module.exports = _.extend({}, SelectPosition, SelectComponent, {
    * @private
    */
   getBadgeEl() {
-    if(!this.$badge)
-      this.$badge = $(this.getBadge());
+    if (!this.$badge) this.$badge = $(this.getBadge());
     return this.$badge;
   },
 
@@ -133,8 +131,7 @@ module.exports = _.extend({}, SelectPosition, SelectComponent, {
    * @private
    */
   getHighlighterEl() {
-    if(!this.$hl)
-      this.$hl = $(this.canvas.getHighlighter());
+    if (!this.$hl) this.$hl = $(this.canvas.getHighlighter());
     return this.$hl;
   },
 
@@ -143,6 +140,9 @@ module.exports = _.extend({}, SelectPosition, SelectComponent, {
     this.getBadgeEl().removeClass(this.badgeClass);
     this.getHighlighterEl().removeClass(this.hoverClass);
     var wp = this.$wrapper;
-    wp.css('cursor', '').unbind().removeClass(this.noSelClass);
+    wp
+      .css('cursor', '')
+      .unbind()
+      .removeClass(this.noSelClass);
   }
 });

@@ -1,17 +1,19 @@
-var Backbone = require('backbone');
+import { isObject } from 'underscore';
+import { on, off, hasDnd } from 'utils/mixins';
 
 module.exports = Backbone.View.extend({
-
   events: {
-    mousedown: 'startDrag'
+    mousedown: 'startDrag',
+    dragstart: 'handleDragStart',
+    dragend: 'handleDragEnd'
   },
 
-  initialize(o, config) {
-    _.bindAll(this, 'endDrag');
-    this.config = config || {};
-    this.ppfx = this.config.pStylePrefix || '';
+  initialize(o, config = {}) {
+    this.em = config.em;
+    this.config = config;
+    this.endDrag = this.endDrag.bind(this);
+    this.ppfx = config.pStylePrefix || '';
     this.listenTo(this.model, 'destroy remove', this.remove);
-    this.doc = $(document);
   },
 
   /**
@@ -19,21 +21,32 @@ module.exports = Backbone.View.extend({
    * @private
    */
   startDrag(e) {
+    const config = this.config;
     //Right or middel click
-    if (e.button !== 0) {
-      return;
-    }
-
-    if(!this.config.getSorter) {
-      return;
-    }
-
-    this.config.em.refreshCanvas();
-    var sorter = this.config.getSorter();
+    if (e.button !== 0 || !config.getSorter || this.el.draggable) return;
+    config.em.refreshCanvas();
+    const sorter = config.getSorter();
     sorter.setDragHelper(this.el, e);
-    sorter.startSort(this.el);
     sorter.setDropContent(this.model.get('content'));
-    this.doc.on('mouseup', this.endDrag);
+    sorter.startSort(this.el);
+    on(document, 'mouseup', this.endDrag);
+  },
+
+  handleDragStart(ev) {
+    const content = this.model.get('content');
+    const isObj = isObject(content);
+    const type = isObj ? 'text/json' : 'text';
+    const data = isObj ? JSON.stringify(content) : content;
+
+    // Note: data are not available on dragenter for security reason,
+    // but will use dragContent as I need it for the Sorter context
+    // IE11 supports only 'text' data type
+    ev.dataTransfer.setData('text', data);
+    this.em.set('dragContent', content);
+  },
+
+  handleDragEnd() {
+    this.em.set('dragContent', '');
   },
 
   /**
@@ -41,7 +54,7 @@ module.exports = Backbone.View.extend({
    * @private
    */
   endDrag(e) {
-    this.doc.off('mouseup', this.endDrag);
+    off(document, 'mouseup', this.endDrag);
     const sorter = this.config.getSorter();
 
     // After dropping the block in the canvas the mouseup event is not yet
@@ -53,10 +66,14 @@ module.exports = Backbone.View.extend({
   },
 
   render() {
-    var className = this.ppfx + 'block';
-    this.$el.addClass(className);
-    this.el.innerHTML = '<div class="' + className + '-label">' + this.model.get('label') + '</div>';
+    const el = this.el;
+    const pfx = this.ppfx;
+    const className = `${pfx}block`;
+    const label = this.model.get('label');
+    el.className += ` ${className} ${pfx}one-bg ${pfx}four-color-h`;
+    el.innerHTML = `<div class="${className}-label">${label}</div>`;
+    el.title = el.textContent.trim();
+    hasDnd(this.em) && el.setAttribute('draggable', true);
     return this;
-  },
-
+  }
 });
